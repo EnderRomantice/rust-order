@@ -1,0 +1,18 @@
+# ===== 前端特有规则 =====
+# (通用规则已在根目录.gitignore中定义)
+
+# Vite 特有
+.vite/
+
+# TypeScript
+*.tsbuildinfo
+
+# 测试覆盖率
+coverage/
+.nyc_output/
+
+# Storybook
+storybook-static/
+
+# 前端特有的临时文件
+.eslintcache

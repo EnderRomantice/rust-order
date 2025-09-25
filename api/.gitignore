@@ -1,0 +1,21 @@
+# ===== 后端特有规则 =====
+# (通用规则已在根目录.gitignore中定义)
+
+# Spring Boot 特有
+application-*.yml
+application-*.yaml
+!application-example.yml
+!application-example.yaml
+
+# 测试报告
+/test-results/
+/test-output/
+
+# JaCoCo 测试覆盖率
+jacoco.exec
+/target/site/jacoco/
+
+# 本地数据库文件
+/data/
+*.mv.db
+*.trace.db
