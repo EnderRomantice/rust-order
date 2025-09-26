@@ -37,6 +37,7 @@ rust_order/
 - **UI组件**: HeroUI 2.8.4
 - **样式**: Tailwind CSS 4.1.13
 - **动画**: Framer Motion 12.23.15
+- **包管理**: pnpm 
 
 ### 移动端 (开发中)
 - 技术栈待定（大概率是ReactNative）
@@ -71,13 +72,49 @@ rust_order/
 
 1. **克隆项目**
 ```bash
-git clone <repository-url>
+
+# gitee
+git clone https://gitee.com/rustlove/rust-order
+
+# github
+git clone https://github.com/EnderRomantice/rust-order
+
 cd rust_order/api
 ```
 
 2. **配置数据库**
-```bash
+```yml
 # 在application.properties中配置MySQL数据库连接
+spring.application.name=api
+
+# MySQL数据库配置
+spring.datasource.url=jdbc:mysql://localhost:3306/rust_order?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+spring.datasource.username=root
+spring.datasource.password=ed121212
+
+# JPA配置
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.database-platform=org.hibernate.dialect.MySQLDialect
+
+
+# Redis配置
+spring.data.redis.host=localhost
+spring.data.redis.port=6379
+spring.data.redis.password=ed121212
+spring.data.redis.timeout=2000ms
+spring.data.redis.lettuce.pool.max-active=8
+spring.data.redis.lettuce.pool.max-idle=8
+spring.data.redis.lettuce.pool.min-idle=0
+
+# 缓存配置 - 如果Redis不可用则降级到简单缓存
+spring.cache.type=simple
+spring.cache.cache-names=orders
+
+# 服务器配置
+server.port=8080
+
 ```
 
 3. **启动后端服务**
