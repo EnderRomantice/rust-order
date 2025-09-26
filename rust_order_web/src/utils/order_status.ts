@@ -1,6 +1,4 @@
-import type { OrderModel } from "../type/order"
-
-export type OrderStatus = OrderModel['orderStatus'];
+import type { OrderStatus } from "../types";
 
 export const ORDER_STATUS = {
     PENDING: 'PENDING',

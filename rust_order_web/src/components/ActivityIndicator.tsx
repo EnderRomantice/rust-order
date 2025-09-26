@@ -1,9 +1,5 @@
 import { Chip } from "@heroui/react";
-
-interface ActivityIndicatorProps {
-  isUserActive: boolean;
-  className?: string;
-}
+import type { ActivityIndicatorProps } from '../types';
 
 const ActivityIndicator = ({ isUserActive, className = "" }: ActivityIndicatorProps) => {
   return (

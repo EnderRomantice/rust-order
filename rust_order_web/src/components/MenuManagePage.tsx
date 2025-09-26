@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { res } from '../utils/res';
+import type { DishModel, DishCardProps } from '../types';
 import { 
   Button, 
   Card, 
@@ -19,32 +20,14 @@ import {
   useDisclosure
 } from "@heroui/react";
 
-interface Dish {
-  id: number;
-  dishName: string;
-  dishType: string;
-  price: number;
-  description: string;
-  imageUrl?: string;
-  isAvailable: boolean;
-  estimatedTime: number;
-  sortOrder?: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-// 优化的菜品卡片组件
+// 菜品卡片组件
 const DishCard = memo(({ 
   dish, 
   onToggleAvailability, 
   isPending 
-}: { 
-  dish: Dish; 
-  onToggleAvailability: (dishId: number, isAvailable: boolean) => void;
-  isPending: boolean;
-}) => {
+}: DishCardProps) => {
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border border-gray-200/50">
+    <Card className="bg-white/80 shadow-none border border-gray-200/50">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start w-full">
           <div>
@@ -81,7 +64,7 @@ const DishCard = memo(({
 });
 
 const MenuManagePage = () => {
-  const [dishes, setDishes] = useState<Dish[]>([]);
+  const [dishes, setDishes] = useState<DishModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedType, setSelectedType] = useState<string>('all');
@@ -110,7 +93,7 @@ const MenuManagePage = () => {
       setDishes(data);
     } catch (err) {
       console.error('获取菜品失败:', err);
-      alert(`获取菜品失败: ${err.message || err}`);
+      alert(`获取菜品失败: ${(err as Error).message || err}`);
     } finally {
       if (isManualRefresh) {
         setRefreshing(false);
@@ -161,7 +144,7 @@ const MenuManagePage = () => {
             : dish
         )
       );
-      alert(`切换菜品状态失败: ${err.message || err}`);
+      alert(`切换菜品状态失败: ${(err as Error).message || err}`);
     } finally {
       // 移除pending状态
       setPendingToggle(prev => {
@@ -190,7 +173,7 @@ const MenuManagePage = () => {
       // 不再需要刷新整个列表
     } catch (err) {
       console.error('创建菜品失败:', err);
-      alert(`创建菜品失败: ${err.message || err}`);
+      alert(`创建菜品失败: ${(err as Error).message || err}`);
     }
   };
 
@@ -350,7 +333,7 @@ const MenuManagePage = () => {
                 }}
               >
                 {dishTypes.map((type) => (
-                  <SelectItem key={type} value={type}>
+                  <SelectItem key={type}>
                     {type}
                   </SelectItem>
                 ))}

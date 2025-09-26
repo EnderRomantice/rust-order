@@ -1,24 +1,7 @@
 import { useState, useEffect } from 'react';
 import { res } from '../utils/res';
-import type { CreateOrderRequest } from '../type/order';
+import type { CreateOrderRequest, Dish, OrderItem, CreateOrderProps } from '../types';
 import {Card, CardHeader, CardBody, CardFooter, Button, Input, Chip, Divider, Spinner} from "@heroui/react";
-
-interface Dish {
-    id: number;
-    dishName: string;
-    dishType: string;
-    price: number;
-    estimatedTime: number;
-}
-
-interface OrderItem {
-    dish: Dish;
-    quantity: number;
-}
-
-interface CreateOrderProps {
-    onOrderCreated?: () => void;
-}
 
 function CreateOrder({ onOrderCreated }: CreateOrderProps) {
     const [dishes, setDishes] = useState<Dish[]>([]);

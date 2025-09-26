@@ -1,16 +1,11 @@
-import type { OrderListModel } from '../type/order'
+import type { OrderListProps } from '../types'
 import OrderCard from './OrderCard'
 import { Card, CardHeader, CardBody } from '@heroui/react';
 
-interface OrderListProps {
-    orders: OrderListModel;
-    onOrderUpdate?: () => void;
-}
-
 function OrderList({orders, onOrderUpdate}: OrderListProps) {
     return (
-        <div className="w-full max-w-7xl mx-auto p-4">
-            <Card className="bg-white/70 backdrop-blur-lg border-0 shadow-xl">
+        <div className="w-full mx-auto">
+            <Card className="bg-white/0 rounded-none shadow-none">
                 <CardHeader className="pb-4">
                     <div className="flex flex-col items-center w-full">
                         <div className="flex items-center space-x-4 text-sm text-gray-600">
@@ -21,7 +16,7 @@ function OrderList({orders, onOrderUpdate}: OrderListProps) {
                     </div>
                 </CardHeader>
                 
-                <CardBody className="pt-0">
+                <CardBody>
                     {orders.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-16">
                             <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">

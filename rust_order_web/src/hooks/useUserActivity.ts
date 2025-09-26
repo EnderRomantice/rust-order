@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from 'react';
  */
 export const useUserActivity = (inactivityDelay: number = 5000) => {
   const [isUserActive, setIsUserActive] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<number | null>(null);
 
   const resetActivityTimer = () => {
     setIsUserActive(true);
@@ -71,7 +71,7 @@ export const useSmartRefresh = (
   inactivityDelay: number = 5000
 ) => {
   const isUserActive = useUserActivity(inactivityDelay);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<number | null>(null);
   const lastRefreshRef = useRef<number>(Date.now());
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { res } from '../utils/res';
-import type { OrderListModel } from '../type/order';
+import type { OrderListModel } from '../types/order';
 import { 
   Button, 
   Card, 
@@ -189,12 +189,10 @@ const HistoryOrdersPage = () => {
                 setStatusFilter(selectedKey);
               }}
             >
-              <SelectItem key="all" value="all">全部状态</SelectItem>
-              {orderStatuses.map((status) => (
-                <SelectItem key={status.key} value={status.key}>
-                  {status.label}
-                </SelectItem>
-              ))}
+              <SelectItem key="all">全部状态</SelectItem>
+              <SelectItem key="COMPLETED">已完成</SelectItem>
+              <SelectItem key="CANCELLED">已取消</SelectItem>
+              <SelectItem key="READY">待取餐</SelectItem>
             </Select>
           </div>
         </div>
@@ -212,7 +210,7 @@ const HistoryOrdersPage = () => {
           </div>
         ) : (
           filteredOrders.map((order) => (
-            <Card key={order.id} className="bg-white/80 backdrop-blur-sm border border-gray-200/50">
+            <Card key={order.id} className="bg-white/80 shadow-none border border-gray-200/50">
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-start w-full">
                   <div>

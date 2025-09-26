@@ -1,13 +1,9 @@
 import { Tabs, Tab } from "@heroui/react";
-
-interface TabBarProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-}
+import type { TabBarProps } from '../types';
 
 const TabBar = ({ activeTab, onTabChange }: TabBarProps) => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200/50 z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-white/70 backdrop-blur-md border-t border-gray-200/50 z-50">
       <div className="container mx-auto px-4">
         <Tabs
           selectedKey={activeTab}

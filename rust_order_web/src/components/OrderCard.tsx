@@ -1,12 +1,7 @@
-import type { OrderModel } from "../type/order";
+import type { OrderCardProps } from "../types";
 import status, { getStatusAction } from "../utils/order_status";
 import { res } from "../utils/res";
 import {Card, CardHeader, CardBody, CardFooter, Button, Chip, Divider} from "@heroui/react";
-
-interface OrderCardProps {
-    order: OrderModel;
-    onOrderUpdate?: () => void;
-}
 
 function OrderCard({order, onOrderUpdate}: OrderCardProps) {
     
@@ -52,7 +47,7 @@ function OrderCard({order, onOrderUpdate}: OrderCardProps) {
     };
 
     return (
-        <Card className="w-full max-w-sm bg-white/80 backdrop-blur-md border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+        <Card className="w-full max-w-sm bg-white/80 backdrop-blur-md border-0 shadow-none transition-all duration-300">
             <CardHeader className="pb-2">
                 <div className="flex justify-between items-center w-full">
                     <div className="flex flex-col">

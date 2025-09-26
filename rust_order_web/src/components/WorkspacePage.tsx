@@ -1,14 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { res } from '../utils/res';
-import type { OrderListModel } from '../type/order';
+import type { OrderListModel, WorkspacePageProps } from '../types';
 import OrderList from './OrderList';
 import ActivityIndicator from './ActivityIndicator';
 import { useSmartRefresh } from '../hooks/useUserActivity';
 import { Button, Spinner } from "@heroui/react";
-
-interface WorkspacePageProps {
-  onOrderUpdate?: () => void;
-}
 
 const WorkspacePage = ({ onOrderUpdate }: WorkspacePageProps) => {
   const [orderList, setOrderList] = useState<OrderListModel>([]);
@@ -137,7 +133,7 @@ const WorkspacePage = ({ onOrderUpdate }: WorkspacePageProps) => {
         <div className="p-6 border-b border-gray-200/50">
           <h2 className="text-lg font-semibold text-gray-900">订单队列</h2>
         </div>
-        <div className="p-6">
+        <div>
           {orderList.length === 0 ? (
             <div className="text-center py-12">
               <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
