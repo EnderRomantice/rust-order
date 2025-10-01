@@ -4,3 +4,4 @@ export { default as Card } from './Card';
 export { default as TextInput } from './TextInput';
 export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as Badge } from './Badge';
+export { DraggableCart } from './DraggableCart';

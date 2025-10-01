@@ -39,4 +39,24 @@ public interface DishRepository extends JpaRepository<Dish, Long> {
      * 获取所有菜品类型
      */
     List<String> findDistinctDishTypeByIsAvailable(Boolean isAvailable);
+    
+    /**
+     * 根据销量获取热门菜品（可用菜品）
+     */
+    List<Dish> findByIsAvailableOrderBySalesCountDescRatingDescCreatedAtDesc(Boolean isAvailable);
+    
+    /**
+     * 根据销量获取指定数量的热门菜品
+     */
+    List<Dish> findTop10ByIsAvailableOrderBySalesCountDescRatingDescCreatedAtDesc(Boolean isAvailable);
+    
+    /**
+     * 根据评分获取高评分菜品
+     */
+    List<Dish> findByIsAvailableAndRatingGreaterThanEqualOrderByRatingDescSalesCountDesc(Boolean isAvailable, Double minRating);
+    
+    /**
+     * 获取新品推荐（最近创建的菜品）
+     */
+    List<Dish> findTop5ByIsAvailableOrderByCreatedAtDesc(Boolean isAvailable);
 }

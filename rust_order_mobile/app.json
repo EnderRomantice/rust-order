@@ -20,7 +20,20 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.rust_order_mobile"
+      "package": "com.anonymous.rust_order_mobile",
+      "usesCleartextTraffic": true,
+      "networkSecurityConfig": {
+        "domain-config": [
+          {
+            "domain": "192.168.101.131",
+            "cleartextTrafficPermitted": true
+          },
+          {
+            "domain": "localhost",
+            "cleartextTrafficPermitted": true
+          }
+        ]
+      }
     },
     "web": {
       "output": "static",

@@ -6,7 +6,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#2196F3', // Material Design Blue
+        tabBarActiveTintColor: '#1DA1F2', // Twitter Blue
         tabBarInactiveTintColor: '#757575', // Material Design Grey
         headerShown: false,
         tabBarStyle: {

@@ -1,6 +1,16 @@
 // API 服务模块 - 封装所有后端接口调用
 
-const BASE_URL = 'http://localhost:8080';
+// 根据平台自动选择合适的API地址
+const getBaseUrl = () => {
+  // // 在Web环境下使用localhost
+  // if (typeof window !== 'undefined') {
+  //   return 'http://localhost:8080';
+  // }
+  // 在移动端环境下使用开发机器的IP地址
+  return 'http://192.168.101.131:8080';
+};
+
+const BASE_URL = getBaseUrl();
 
 // 数据类型定义
 export interface Dish {

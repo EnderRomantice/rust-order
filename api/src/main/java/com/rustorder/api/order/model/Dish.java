@@ -47,6 +47,15 @@ public class Dish {
     @Column(name = "sort_order")
     private Integer sortOrder = 0; // 排序顺序
     
+    @Column(name = "sales_count")
+    private Integer salesCount = 0; // 销量统计
+    
+    @Column(name = "rating")
+    private Double rating = 0.0; // 菜品评分（0-5分）
+    
+    @Column(name = "rating_count")
+    private Integer ratingCount = 0; // 评分人数
+    
     @Column(name = "created_at")
     private Date createdAt;
     

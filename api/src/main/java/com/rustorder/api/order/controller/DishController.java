@@ -42,16 +42,52 @@ public class DishController {
     }
     
     /**
-     * 获取热门菜品
+     * 获取热门菜品（基于销量和评分）
      */
     @GetMapping("/popular")
     public ResponseEntity<List<Dish>> getPopularDishes(@RequestParam(defaultValue = "6") int limit) {
-        List<Dish> dishes = dishRepository.findByIsAvailableOrderByDishTypeAscSortOrderAsc(true);
-        // 简单实现：返回前N个菜品作为热门菜品
-        List<Dish> popularDishes = dishes.stream()
+        List<Dish> popularDishes;
+        
+        if (limit <= 10) {
+            // 使用预定义的Top10查询方法
+            popularDishes = dishRepository.findTop10ByIsAvailableOrderBySalesCountDescRatingDescCreatedAtDesc(true);
+        } else {
+            // 获取所有热门菜品然后限制数量
+            popularDishes = dishRepository.findByIsAvailableOrderBySalesCountDescRatingDescCreatedAtDesc(true);
+        }
+        
+        // 限制返回数量
+        List<Dish> result = popularDishes.stream()
                 .limit(limit)
                 .toList();
-        return ResponseEntity.ok(popularDishes);
+        
+        return ResponseEntity.ok(result);
+    }
+    
+    /**
+     * 获取高评分菜品
+     */
+    @GetMapping("/top-rated")
+    public ResponseEntity<List<Dish>> getTopRatedDishes(
+            @RequestParam(defaultValue = "4.0") double minRating,
+            @RequestParam(defaultValue = "6") int limit) {
+        List<Dish> topRatedDishes = dishRepository
+                .findByIsAvailableAndRatingGreaterThanEqualOrderByRatingDescSalesCountDesc(true, minRating);
+        
+        List<Dish> result = topRatedDishes.stream()
+                .limit(limit)
+                .toList();
+        
+        return ResponseEntity.ok(result);
+    }
+    
+    /**
+     * 获取新品推荐
+     */
+    @GetMapping("/new-arrivals")
+    public ResponseEntity<List<Dish>> getNewArrivals() {
+        List<Dish> newDishes = dishRepository.findTop5ByIsAvailableOrderByCreatedAtDesc(true);
+        return ResponseEntity.ok(newDishes);
     }
     
     /**
@@ -86,6 +122,15 @@ public class DishController {
             }
             if (dish.getSortOrder() == null) {
                 dish.setSortOrder(0);
+            }
+            if (dish.getSalesCount() == null) {
+                dish.setSalesCount(0);
+            }
+            if (dish.getRating() == null) {
+                dish.setRating(0.0);
+            }
+            if (dish.getRatingCount() == null) {
+                dish.setRatingCount(0);
             }
             Dish savedDish = dishRepository.save(dish);
             return new ResponseEntity<>(savedDish, HttpStatus.CREATED);
@@ -174,10 +219,90 @@ public class DishController {
                 if (dish.getSortOrder() == null) {
                     dish.setSortOrder(0);
                 }
+                if (dish.getSalesCount() == null) {
+                    dish.setSalesCount(0);
+                }
+                if (dish.getRating() == null) {
+                    dish.setRating(0.0);
+                }
+                if (dish.getRatingCount() == null) {
+                    dish.setRatingCount(0);
+                }
             });
             
             List<Dish> savedDishes = dishRepository.saveAll(dishes);
             return new ResponseEntity<>(savedDishes, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    /**
+     * 菜品评分
+     */
+    @PostMapping("/{id}/rate")
+    public ResponseEntity<Dish> rateDish(
+            @PathVariable Long id, 
+            @RequestBody Map<String, Double> request) {
+        try {
+            Optional<Dish> dishOpt = dishRepository.findById(id);
+            if (dishOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Dish dish = dishOpt.get();
+            Double newRating = request.get("rating");
+            
+            // 验证评分范围
+            if (newRating == null || newRating < 0 || newRating > 5) {
+                return ResponseEntity.badRequest().build();
+            }
+            
+            // 计算新的平均评分
+            int currentRatingCount = dish.getRatingCount();
+            double currentRating = dish.getRating();
+            
+            // 新的评分总数
+            int newRatingCount = currentRatingCount + 1;
+            
+            // 计算新的平均评分
+            double newAverageRating = ((currentRating * currentRatingCount) + newRating) / newRatingCount;
+            
+            // 更新菜品评分信息
+            dish.setRating(Math.round(newAverageRating * 100.0) / 100.0); // 保留两位小数
+            dish.setRatingCount(newRatingCount);
+            dish.setUpdatedAt(new Date());
+            
+            Dish updatedDish = dishRepository.save(dish);
+            return ResponseEntity.ok(updatedDish);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    /**
+     * 增加菜品销量（订单完成时调用）
+     */
+    @PostMapping("/{id}/increment-sales")
+    public ResponseEntity<Dish> incrementSales(@PathVariable Long id, @RequestBody Map<String, Integer> request) {
+        try {
+            Optional<Dish> dishOpt = dishRepository.findById(id);
+            if (dishOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Dish dish = dishOpt.get();
+            Integer quantity = request.get("quantity");
+            if (quantity == null || quantity <= 0) {
+                quantity = 1;
+            }
+            
+            // 增加销量
+            dish.setSalesCount(dish.getSalesCount() + quantity);
+            dish.setUpdatedAt(new Date());
+            
+            Dish updatedDish = dishRepository.save(dish);
+            return ResponseEntity.ok(updatedDish);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }

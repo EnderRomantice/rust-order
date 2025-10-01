@@ -175,7 +175,7 @@ export default function HomeScreen() {
            <View style={styles.storeCard}>
              <View style={styles.storeItem}>
                <View style={styles.storeIconContainer}>
-                 <Ionicons name="time" size={20} color="#2196F3" />
+                 <Ionicons name="time" size={20} color="#1DA1F2" />
                </View>
                <View style={styles.storeTextContainer}>
                  <Text style={styles.storeLabel}>营业时间</Text>
@@ -185,7 +185,7 @@ export default function HomeScreen() {
              
              <View style={styles.storeItem}>
                <View style={styles.storeIconContainer}>
-                 <Ionicons name="call" size={20} color="#2196F3" />
+                 <Ionicons name="call" size={20} color="#1DA1F2" />
                </View>
                <View style={styles.storeTextContainer}>
                  <Text style={styles.storeLabel}>联系电话</Text>
@@ -195,7 +195,7 @@ export default function HomeScreen() {
              
              <View style={styles.storeItem}>
                <View style={styles.storeIconContainer}>
-                 <Ionicons name="location" size={20} color="#2196F3" />
+                 <Ionicons name="location" size={20} color="#1DA1F2" />
                </View>
                <View style={styles.storeTextContainer}>
                  <Text style={styles.storeLabel}>店铺地址</Text>
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ff6b35',
   },
   secondaryAction: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#1DA1F2',
   },
   actionIcon: {
     width: 60,

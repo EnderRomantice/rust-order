@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,82 +8,85 @@ import {
   FlatList,
   Alert,
   Modal,
+  ActivityIndicator,
+  SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Card, Button, LoadingSpinner } from '@/src/components';
-
-// 模拟订单数据
-const MOCK_ORDERS = [
-  {
-    id: 1,
-    pickupCode: '123456',
-    orderStatus: 'PREPARING',
-    queueNumber: 3,
-    totalPrice: 56.0,
-    createdAt: '2024-01-01T12:00:00Z',
-    items: [
-      {
-        id: 1,
-        dishName: '宫保鸡丁饭',
-        quantity: 2,
-        unitPrice: 28.0,
-      }
-    ]
-  },
-  {
-    id: 2,
-    pickupCode: '789012',
-    orderStatus: 'READY',
-    queueNumber: 1,
-    totalPrice: 43.0,
-    createdAt: '2024-01-01T11:30:00Z',
-    items: [
-      {
-        id: 2,
-        dishName: '红烧肉饭',
-        quantity: 1,
-        unitPrice: 32.0,
-      },
-      {
-        id: 3,
-        dishName: '珍珠奶茶',
-        quantity: 1,
-        unitPrice: 15.0,
-      }
-    ]
-  },
-  {
-    id: 3,
-    pickupCode: '345678',
-    orderStatus: 'COMPLETED',
-    queueNumber: 0,
-    totalPrice: 28.0,
-    createdAt: '2024-01-01T10:00:00Z',
-    items: [
-      {
-        id: 1,
-        dishName: '宫保鸡丁饭',
-        quantity: 1,
-        unitPrice: 28.0,
-      }
-    ]
-  }
-];
+import { orderAPI, type Order } from '@/src/services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ORDER_STATUS_MAP = {
-  PENDING: { text: '待处理', color: '#FF9800' },
-  CONFIRMED: { text: '已确认', color: '#2196F3' },
-  PREPARING: { text: '制作中', color: '#FF5722' },
-  READY: { text: '待取餐', color: '#4CAF50' },
-  COMPLETED: { text: '已完成', color: '#9E9E9E' },
-  CANCELLED: { text: '已取消', color: '#F44336' },
+  PENDING: { text: '待处理', color: '#F7931E' },
+  CONFIRMED: { text: '已确认', color: '#1DA1F2' },
+  PREPARING: { text: '制作中', color: '#F91880' },
+  READY: { text: '待取餐', color: '#17BF63' },
+  COMPLETED: { text: '已完成', color: '#657786' },
+  CANCELLED: { text: '已取消', color: '#E0245E' },
 };
 
 export default function PickupScreen() {
   const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
-  const [orders, setOrders] = useState(MOCK_ORDERS);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [pickupModalVisible, setPickupModalVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [userId, setUserId] = useState<string>('');
+
+  // 获取用户ID
+  useEffect(() => {
+    const getUserId = async () => {
+      try {
+        let storedUserId = await AsyncStorage.getItem('userId');
+        if (!storedUserId) {
+          // 如果没有用户ID，生成一个临时的
+          storedUserId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          await AsyncStorage.setItem('userId', storedUserId);
+        }
+        setUserId(storedUserId);
+      } catch (error) {
+        console.error('获取用户ID失败:', error);
+        // 使用临时ID
+        const tempUserId = `temp_${Date.now()}`;
+        setUserId(tempUserId);
+      }
+    };
+    getUserId();
+  }, []);
+
+  // 加载订单数据
+  useEffect(() => {
+    if (userId) {
+      loadOrders();
+    }
+  }, [userId]);
+
+  const loadOrders = async () => {
+    try {
+      setLoading(true);
+      const userOrders = await orderAPI.getUserOrders(userId);
+      setOrders(userOrders);
+    } catch (error) {
+      console.error('加载订单失败:', error);
+      Alert.alert('错误', '加载订单失败，请稍后重试');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshOrders = async () => {
+    try {
+      setRefreshing(true);
+      const userOrders = await orderAPI.getUserOrders(userId);
+      setOrders(userOrders);
+    } catch (error) {
+      console.error('刷新订单失败:', error);
+      Alert.alert('错误', '刷新订单失败，请稍后重试');
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const currentOrders = orders.filter(order => 
     ['PENDING', 'CONFIRMED', 'PREPARING', 'READY'].includes(order.orderStatus)
@@ -103,18 +106,19 @@ export default function PickupScreen() {
     setPickupModalVisible(true);
   };
 
-  const handlePickupConfirm = () => {
+  const handlePickupConfirm = async () => {
     if (selectedOrder) {
-      setOrders(prevOrders =>
-        prevOrders.map(order =>
-          order.id === selectedOrder.id
-            ? { ...order, orderStatus: 'COMPLETED' }
-            : order
-        )
-      );
-      setPickupModalVisible(false);
-      setSelectedOrder(null);
-      Alert.alert('成功', '取餐完成！');
+      try {
+        await orderAPI.confirmPickup(selectedOrder.id);
+        setPickupModalVisible(false);
+        setSelectedOrder(null);
+        Alert.alert('成功', '取餐完成！');
+        // 刷新订单列表
+        await refreshOrders();
+      } catch (error) {
+        console.error('确认取餐失败:', error);
+        Alert.alert('错误', '确认取餐失败，请稍后重试');
+      }
     }
   };
 
@@ -136,7 +140,7 @@ export default function PickupScreen() {
 
         {item.orderStatus === 'PREPARING' && (
           <View style={styles.queueInfo}>
-            <Ionicons name="time-outline" size={16} color="#FF5722" />
+            <Ionicons name="time-outline" size={16} color="#F91880" />
             <Text style={styles.queueText}>前面还有 {item.queueNumber} 单</Text>
           </View>
         )}
@@ -156,7 +160,7 @@ export default function PickupScreen() {
               title="确认取餐"
               onPress={() => confirmPickup(item)}
               variant="filled"
-              color="#4CAF50"
+              color="#17BF63"
               style={styles.pickupButton}
             />
           )}
@@ -166,7 +170,7 @@ export default function PickupScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* 标题栏 */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>我的订单</Text>
@@ -193,26 +197,35 @@ export default function PickupScreen() {
       </View>
 
       {/* 订单列表 */}
-      <FlatList
-        data={activeTab === 'current' ? currentOrders : historyOrders}
-        renderItem={renderOrderItem}
-        keyExtractor={item => item.id.toString()}
-        style={styles.orderList}
-        contentContainerStyle={styles.orderListContent}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons 
-              name={activeTab === 'current' ? 'restaurant-outline' : 'receipt-outline'} 
-              size={64} 
-              color="#BDBDBD" 
-            />
-            <Text style={styles.emptyText}>
-              {activeTab === 'current' ? '暂无正在制作的订单' : '暂无历史订单'}
-            </Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#1DA1F2" />
+          <Text style={styles.loadingText}>加载订单中...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={activeTab === 'current' ? currentOrders : historyOrders}
+          renderItem={renderOrderItem}
+          keyExtractor={item => item.id.toString()}
+          style={styles.orderList}
+          contentContainerStyle={styles.orderListContent}
+          showsVerticalScrollIndicator={false}
+          refreshing={refreshing}
+          onRefresh={refreshOrders}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Ionicons 
+                name={activeTab === 'current' ? 'restaurant-outline' : 'receipt-outline'} 
+                size={64} 
+                color="#BDBDBD" 
+              />
+              <Text style={styles.emptyText}>
+                {activeTab === 'current' ? '暂无正在制作的订单' : '暂无历史订单'}
+              </Text>
+            </View>
+          }
+        />
+      )}
 
       {/* 取餐确认弹窗 */}
       <Modal
@@ -262,7 +275,7 @@ export default function PickupScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -303,7 +316,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   activeTab: {
-    borderBottomColor: '#FF5722',
+    borderBottomColor: '#1DA1F2',
   },
   tabText: {
     fontSize: 16,
@@ -311,7 +324,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   activeTabText: {
-    color: '#FF5722',
+    color: '#1DA1F2',
     fontWeight: '700',
   },
   orderList: {
@@ -377,11 +390,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF3E0',
     borderRadius: 12,
     borderLeftWidth: 4,
-    borderLeftColor: '#FF5722',
+    borderLeftColor: '#F91880',
   },
   queueText: {
     fontSize: 14,
-    color: '#FF5722',
+    color: '#F91880',
     marginLeft: 6,
     fontWeight: '600',
   },
@@ -408,14 +421,14 @@ const styles = StyleSheet.create({
   totalPrice: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#FF5722',
+    color: '#1DA1F2',
   },
   pickupButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#17BF63',
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 24,
-    shadowColor: '#4CAF50',
+    shadowColor: '#17BF63',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -436,6 +449,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#9E9E9E',
     marginTop: 20,
+    fontWeight: '500',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 80,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#666666',
+    marginTop: 16,
     fontWeight: '500',
   },
   modalOverlay: {
@@ -483,14 +508,14 @@ const styles = StyleSheet.create({
   },
   pickupCodeLabel: {
     fontSize: 16,
-    color: '#FF5722',
+    color: '#F91880',
     marginBottom: 12,
     fontWeight: '600',
   },
   pickupCodeLarge: {
     fontSize: 36,
     fontWeight: '700',
-    color: '#FF5722',
+    color: '#F91880',
     letterSpacing: 6,
   },
   orderSummary: {
@@ -528,7 +553,7 @@ const styles = StyleSheet.create({
   summaryItemPrice: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#FF5722',
+    color: '#1DA1F2',
   },
   summaryTotal: {
     paddingTop: 16,
@@ -543,12 +568,12 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   confirmButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#17BF63',
     paddingVertical: 16,
     borderRadius: 16,
     alignItems: 'center',
     marginTop: 16,
-    shadowColor: '#4CAF50',
+    shadowColor: '#17BF63',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

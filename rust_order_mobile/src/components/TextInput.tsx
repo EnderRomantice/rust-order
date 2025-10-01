@@ -50,14 +50,14 @@ const TextInput: React.FC<TextInputProps> = ({
 
     if (variant === 'outlined') {
       baseStyle.borderWidth = 1;
-      baseStyle.borderColor = error ? '#F44336' : isFocused ? '#1976D2' : '#E0E0E0';
+      baseStyle.borderColor = error ? '#F91880' : isFocused ? '#1DA1F2' : '#E0E0E0';
       baseStyle.backgroundColor = '#FFFFFF';
       baseStyle.paddingHorizontal = 16;
     } else {
       baseStyle.backgroundColor = error ? '#FFEBEE' : isFocused ? '#E3F2FD' : '#F5F5F5';
       baseStyle.paddingHorizontal = 16;
       baseStyle.borderBottomWidth = 2;
-      baseStyle.borderBottomColor = error ? '#F44336' : isFocused ? '#1976D2' : '#E0E0E0';
+      baseStyle.borderBottomColor = error ? '#F91880' : isFocused ? '#1DA1F2' : '#E0E0E0';
     }
 
     return baseStyle;
@@ -76,7 +76,7 @@ const TextInput: React.FC<TextInputProps> = ({
   const getLabelStyle = (): TextStyle => {
     const baseStyle: TextStyle = {
       fontSize: 12,
-      color: error ? '#F44336' : isFocused ? '#1976D2' : '#757575',
+      color: error ? '#F91880' : isFocused ? '#1DA1F2' : '#757575',
       marginBottom: 4,
       fontWeight: '500',
     };
@@ -87,7 +87,7 @@ const TextInput: React.FC<TextInputProps> = ({
   const getHelperTextStyle = (): TextStyle => {
     const baseStyle: TextStyle = {
       fontSize: 12,
-      color: error ? '#F44336' : '#757575',
+      color: error ? '#F91880' : '#757575',
       marginTop: 4,
       marginLeft: variant === 'outlined' ? 16 : 0,
     };
@@ -100,7 +100,7 @@ const TextInput: React.FC<TextInputProps> = ({
       {label && (
         <Text style={[getLabelStyle(), labelStyle]}>
           {label}
-          {required && <Text style={{ color: '#F44336' }}> *</Text>}
+          {required && <Text style={{ color: '#F91880' }}> *</Text>}
         </Text>
       )}
       <View style={getInputContainerStyle()}>

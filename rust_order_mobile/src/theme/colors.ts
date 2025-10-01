@@ -1,50 +1,50 @@
-// Material Design 颜色主题配置
+// Twitter 风格颜色主题配置
 export const colors = {
-  // 主色调
+  // 主色调 - 推特蓝
   primary: {
-    main: '#1976D2',
-    light: '#42A5F5',
-    dark: '#1565C0',
+    main: '#1DA1F2',
+    light: '#71C9F8',
+    dark: '#1991DA',
     contrastText: '#FFFFFF',
   },
   
-  // 次要色调
+  // 次要色调 - 深灰
   secondary: {
-    main: '#DC004E',
-    light: '#FF5983',
-    dark: '#9A0036',
+    main: '#536471',
+    light: '#8B98A5',
+    dark: '#3C4043',
     contrastText: '#FFFFFF',
   },
   
-  // 成功色
+  // 成功色 - 推特绿
   success: {
-    main: '#4CAF50',
-    light: '#81C784',
-    dark: '#388E3C',
+    main: '#00BA7C',
+    light: '#4DD4AC',
+    dark: '#00A368',
     contrastText: '#FFFFFF',
   },
   
-  // 警告色
+  // 警告色 - 推特黄
   warning: {
-    main: '#FF9800',
-    light: '#FFB74D',
-    dark: '#F57C00',
+    main: '#FFD400',
+    light: '#FFED4A',
+    dark: '#F7B801',
     contrastText: '#000000',
   },
   
-  // 错误色
+  // 错误色 - 推特红
   error: {
-    main: '#F44336',
-    light: '#EF5350',
-    dark: '#D32F2F',
+    main: '#F91880',
+    light: '#FF69B4',
+    dark: '#E1306C',
     contrastText: '#FFFFFF',
   },
   
-  // 信息色
+  // 信息色 - 推特蓝
   info: {
-    main: '#2196F3',
-    light: '#64B5F6',
-    dark: '#1976D2',
+    main: '#1DA1F2',
+    light: '#71C9F8',
+    dark: '#1991DA',
     contrastText: '#FFFFFF',
   },
   
@@ -62,23 +62,24 @@ export const colors = {
     900: '#212121',
   },
   
-  // 背景色
+  // 背景色 - 推特风格
   background: {
-    default: '#FAFAFA',
+    default: '#FFFFFF',
     paper: '#FFFFFF',
-    disabled: '#F5F5F5',
+    disabled: '#F7F9FA',
+    hover: '#F7F9FA',
   },
   
-  // 文本色
+  // 文本色 - 推特风格
   text: {
-    primary: '#212121',
-    secondary: '#757575',
-    disabled: '#BDBDBD',
-    hint: '#9E9E9E',
+    primary: '#0F1419',
+    secondary: '#536471',
+    disabled: '#8B98A5',
+    hint: '#8B98A5',
   },
   
-  // 分割线
-  divider: '#E0E0E0',
+  // 分割线 - 推特风格
+  divider: '#EFF3F4',
   
   // 覆盖层
   overlay: 'rgba(0, 0, 0, 0.5)',
@@ -87,26 +88,26 @@ export const colors = {
   shadow: '#000000',
 };
 
-// 食品相关颜色
+// 食品相关颜色 - 推特风格
 export const foodColors = {
   // 菜品分类颜色
   categories: {
-    hot: '#FF5722', // 热菜
-    cold: '#2196F3', // 凉菜
-    soup: '#4CAF50', // 汤类
-    staple: '#FF9800', // 主食
-    dessert: '#E91E63', // 甜品
-    drink: '#9C27B0', // 饮品
+    hot: '#F91880', // 热菜 - 推特红
+    cold: '#1DA1F2', // 凉菜 - 推特蓝
+    soup: '#00BA7C', // 汤类 - 推特绿
+    staple: '#FFD400', // 主食 - 推特黄
+    dessert: '#FF69B4', // 甜品 - 浅红
+    drink: '#71C9F8', // 饮品 - 浅蓝
   },
   
   // 订单状态颜色
   orderStatus: {
-    pending: '#FF9800',
-    confirmed: '#2196F3',
-    preparing: '#FF5722',
-    ready: '#4CAF50',
-    completed: '#9E9E9E',
-    cancelled: '#F44336',
+    pending: '#FFD400', // 待处理 - 推特黄
+    confirmed: '#1DA1F2', // 已确认 - 推特蓝
+    preparing: '#F91880', // 制作中 - 推特红
+    ready: '#00BA7C', // 已完成 - 推特绿
+    completed: '#536471', // 已取餐 - 推特灰
+    cancelled: '#F91880', // 已取消 - 推特红
   },
 };
 

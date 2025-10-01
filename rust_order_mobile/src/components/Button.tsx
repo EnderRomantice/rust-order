@@ -29,7 +29,7 @@ const Button: React.FC<ButtonProps> = ({
   loading = false,
   style,
   textStyle,
-  color = '#1976D2',
+  color = '#1DA1F2',
 }) => {
   const getButtonStyle = (): ViewStyle => {
     const baseStyle: ViewStyle = {

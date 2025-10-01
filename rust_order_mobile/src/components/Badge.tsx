@@ -23,7 +23,7 @@ const Badge: React.FC<BadgeProps> = ({
   count,
   maxCount = 99,
   size = 'medium',
-  color = '#F44336',
+  color = '#1DA1F2',
   textColor = '#FFFFFF',
   style,
   textStyle,
