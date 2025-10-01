@@ -42,6 +42,19 @@ public class DishController {
     }
     
     /**
+     * 获取热门菜品
+     */
+    @GetMapping("/popular")
+    public ResponseEntity<List<Dish>> getPopularDishes(@RequestParam(defaultValue = "6") int limit) {
+        List<Dish> dishes = dishRepository.findByIsAvailableOrderByDishTypeAscSortOrderAsc(true);
+        // 简单实现：返回前N个菜品作为热门菜品
+        List<Dish> popularDishes = dishes.stream()
+                .limit(limit)
+                .toList();
+        return ResponseEntity.ok(popularDishes);
+    }
+    
+    /**
      * 根据ID获取菜品详情
      */
     @GetMapping("/{id}")
