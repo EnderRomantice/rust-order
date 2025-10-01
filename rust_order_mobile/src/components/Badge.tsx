@@ -6,18 +6,7 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-
-interface BadgeProps {
-  count: number;
-  maxCount?: number;
-  size?: 'small' | 'medium' | 'large';
-  color?: string;
-  textColor?: string;
-  style?: ViewStyle;
-  textStyle?: TextStyle;
-  showZero?: boolean;
-  dot?: boolean;
-}
+import { BadgeProps } from '../types';
 
 const Badge: React.FC<BadgeProps> = ({
   count,

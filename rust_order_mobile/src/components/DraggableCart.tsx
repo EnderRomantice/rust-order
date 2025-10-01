@@ -10,42 +10,22 @@ import {
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  withTiming,
   runOnJS,
   interpolate,
   Extrapolate,
 } from 'react-native-reanimated';
-// import { Button } from './index'; // 暂时移除，使用TouchableOpacity替代
+import { CartItem, DraggableCartProps } from '../types';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MIN_HEIGHT = 200;
 const MAX_HEIGHT = SCREEN_HEIGHT * 0.8;
-const INITIAL_HEIGHT = SCREEN_HEIGHT * 0.5; // 初始高度为屏幕的50%
-
-interface CartItem {
-  id: number;
-  dishName: string;
-  dishType: string;
-  price: number;
-  quantity: number;
-  imageUrl?: string;
-  notes?: string;
-}
-
-interface DraggableCartProps {
-  visible: boolean;
-  cartItems: CartItem[];
-  totalPrice: number;
-  onClose: () => void;
-  onSubmitOrder: () => void;
-  onIncreaseQuantity: (itemId: number) => void;
-  onDecreaseQuantity: (itemId: number) => void;
-}
+const INITIAL_HEIGHT = SCREEN_HEIGHT * 0.5;
 
 export const DraggableCart: React.FC<DraggableCartProps> = ({
   visible,
@@ -56,6 +36,7 @@ export const DraggableCart: React.FC<DraggableCartProps> = ({
   onIncreaseQuantity,
   onDecreaseQuantity,
 }) => {
+  const insets = useSafeAreaInsets();
   const translateY = useSharedValue(SCREEN_HEIGHT);
   const height = useSharedValue(INITIAL_HEIGHT);
 
@@ -268,7 +249,7 @@ export const DraggableCart: React.FC<DraggableCartProps> = ({
           </View>
 
           {/* 购物车底部 */}
-          <View style={styles.footer}>
+          <View style={[styles.footer, { paddingBottom: 20 + insets.bottom }]}>
             <View style={styles.totalInfo}>
               <Text style={styles.totalLabel}>总计</Text>
               <Text style={styles.totalPrice}>¥{totalPrice.toFixed(2)}</Text>

@@ -6,19 +6,8 @@ import {
   StyleSheet,
   ViewStyle,
   TextStyle,
-  TextInputProps as RNTextInputProps,
 } from 'react-native';
-
-interface TextInputProps extends RNTextInputProps {
-  label?: string;
-  error?: string;
-  helperText?: string;
-  variant?: 'outlined' | 'filled';
-  style?: ViewStyle;
-  inputStyle?: TextStyle;
-  labelStyle?: TextStyle;
-  required?: boolean;
-}
+import { TextInputProps } from '../types';
 
 const TextInput: React.FC<TextInputProps> = ({
   label,

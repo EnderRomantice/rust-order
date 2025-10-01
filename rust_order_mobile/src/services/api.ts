@@ -1,4 +1,15 @@
 // API 服务模块 - 封装所有后端接口调用
+import {
+  Dish,
+  OrderItem,
+  Order,
+  ApiCartItem,
+  ApiCart,
+  CreateOrderRequest,
+  TodayStats,
+  WeeklyStats,
+  APIError,
+} from '../types';
 
 // 根据平台自动选择合适的API地址
 const getBaseUrl = () => {
@@ -11,87 +22,6 @@ const getBaseUrl = () => {
 };
 
 const BASE_URL = getBaseUrl();
-
-// 数据类型定义
-export interface Dish {
-  id: number;
-  dishName: string;
-  dishType: string;
-  price: number;
-  description: string;
-  imageUrl: string;
-  isAvailable: boolean;
-  estimatedTime: number;
-  sortOrder: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface OrderItem {
-  id: number;
-  dishName: string;
-  dishType: string;
-  unitPrice: number;
-  quantity: number;
-  subtotal: number;
-  estimatedTime: number;
-  itemNotes: string;
-}
-
-export interface Order {
-  id: number;
-  userId: string;
-  pickupCode: string;
-  orderStatus: 'PENDING' | 'CONFIRMED' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED';
-  queueNumber: number;
-  notes: string;
-  totalPrice: number;
-  totalEstimatedTime: number;
-  createdAt: string;
-  updatedAt: string;
-  items: OrderItem[];
-}
-
-export interface CartItem {
-  name: string;
-  orderType: string;
-  price: number;
-  quantity: number;
-}
-
-export interface Cart {
-  userId: string;
-  items: CartItem[];
-  totalPrice: number;
-  totalQuantity: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateOrderRequest {
-  userId: string;
-  notes: string;
-  items: {
-    dishName: string;
-    dishType: string;
-    unitPrice: number;
-    quantity: number;
-    estimatedTime: number;
-    itemNotes: string;
-  }[];
-}
-
-// 错误处理工具
-export class APIError extends Error {
-  constructor(
-    message: string,
-    public status?: number,
-    public response?: any
-  ) {
-    super(message);
-    this.name = 'APIError';
-  }
-}
 
 // 通用API服务类 - 单例模式
 export class ApiService {
@@ -255,9 +185,9 @@ export const dishAPI = {
 // 购物车相关 API
 export const cartAPI = {
   // 获取购物车
-  getCart: async (userId: string): Promise<Cart> => {
+  getCart: async (userId: string): Promise<ApiCart> => {
     try {
-      return await apiService.get<Cart>(`/api/cart/${encodeURIComponent(userId)}`);
+      return await apiService.get<ApiCart>(`/api/cart/${encodeURIComponent(userId)}`);
     } catch (error) {
       console.error('Failed to fetch cart:', error);
       throw new APIError('获取购物车失败', 500);
@@ -265,9 +195,9 @@ export const cartAPI = {
   },
 
   // 添加商品到购物车
-  addToCart: async (userId: string, item: CartItem): Promise<Cart> => {
+  addToCart: async (userId: string, item: ApiCartItem): Promise<ApiCart> => {
     try {
-      return await apiService.post<Cart>(`/api/cart/${encodeURIComponent(userId)}/add`, item);
+      return await apiService.post<ApiCart>(`/api/cart/${encodeURIComponent(userId)}/add`, item);
     } catch (error) {
       console.error('Failed to add to cart:', error);
       throw new APIError('添加到购物车失败', 500);
@@ -275,9 +205,9 @@ export const cartAPI = {
   },
 
   // 更新购物车商品数量
-  updateCartItem: async (userId: string, itemName: string, quantity: number): Promise<Cart> => {
+  updateCartItem: async (userId: string, itemName: string, quantity: number): Promise<ApiCart> => {
     try {
-      return await apiService.put<Cart>(`/api/cart/${encodeURIComponent(userId)}/update`, { name: itemName, quantity });
+      return await apiService.put<ApiCart>(`/api/cart/${encodeURIComponent(userId)}/update`, { name: itemName, quantity });
     } catch (error) {
       console.error('Failed to update cart item:', error);
       throw new APIError('更新购物车商品失败', 500);
@@ -285,9 +215,9 @@ export const cartAPI = {
   },
 
   // 从购物车移除商品
-  removeFromCart: async (userId: string, itemName: string): Promise<Cart> => {
+  removeFromCart: async (userId: string, itemName: string): Promise<ApiCart> => {
     try {
-      return await apiService.delete<Cart>(`/api/cart/${encodeURIComponent(userId)}/remove/${encodeURIComponent(itemName)}`);
+      return await apiService.delete<ApiCart>(`/api/cart/${encodeURIComponent(userId)}/remove/${encodeURIComponent(itemName)}`);
     } catch (error) {
       console.error('Failed to remove from cart:', error);
       throw new APIError('从购物车移除商品失败', 500);
@@ -295,9 +225,9 @@ export const cartAPI = {
   },
 
   // 清空购物车
-  clearCart: async (userId: string): Promise<{ message: string }> => {
+  clearCart: async (userId: string): Promise<ApiCart> => {
     try {
-      return await apiService.delete<{ message: string }>(`/api/cart/${encodeURIComponent(userId)}/clear`);
+      return await apiService.delete<ApiCart>(`/api/cart/${encodeURIComponent(userId)}/clear`);
     } catch (error) {
       console.error('Failed to clear cart:', error);
       throw new APIError('清空购物车失败', 500);
@@ -401,13 +331,9 @@ export const orderAPI = {
 // 统计相关 API
 export const statsAPI = {
   // 获取今日销售统计
-  getTodayStats: async (): Promise<{
-    totalOrders: number;
-    totalRevenue: number;
-    popularDishes: Array<{ name: string; count: number }>;
-  }> => {
+  getTodayStats: async (): Promise<TodayStats> => {
     try {
-      return await apiService.get('/api/stats/today');
+      return await apiService.get<TodayStats>('/api/stats/today');
     } catch (error) {
       console.error('Failed to fetch today stats:', error);
       throw new APIError('获取今日统计失败', 500);
@@ -415,13 +341,9 @@ export const statsAPI = {
   },
 
   // 获取本周销售统计
-  getWeeklyStats: async (): Promise<{
-    totalOrders: number;
-    totalRevenue: number;
-    dailyStats: Array<{ date: string; orders: number; revenue: number }>;
-  }> => {
+  getWeeklyStats: async (): Promise<WeeklyStats> => {
     try {
-      return await apiService.get('/api/stats/weekly');
+      return await apiService.get<WeeklyStats>('/api/stats/weekly');
     } catch (error) {
       console.error('Failed to fetch weekly stats:', error);
       throw new APIError('获取本周统计失败', 500);

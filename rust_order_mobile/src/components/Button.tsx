@@ -7,18 +7,7 @@ import {
   TextStyle,
   ActivityIndicator,
 } from 'react-native';
-
-interface ButtonProps {
-  title: string;
-  onPress: () => void;
-  variant?: 'filled' | 'outlined' | 'text';
-  size?: 'small' | 'medium' | 'large';
-  disabled?: boolean;
-  loading?: boolean;
-  style?: ViewStyle;
-  textStyle?: TextStyle;
-  color?: string;
-}
+import { ButtonProps } from '../types';
 
 const Button: React.FC<ButtonProps> = ({
   title,

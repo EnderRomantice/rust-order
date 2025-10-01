@@ -1,27 +1,11 @@
 // 购物车状态管理和本地存储
 import { Platform } from 'react-native';
+import { CartItem, CartState } from '../types';
 
 // 条件导入AsyncStorage，避免在web环境中出错
 let AsyncStorage: any = null;
 if (Platform.OS !== 'web') {
   AsyncStorage = require('@react-native-async-storage/async-storage').default;
-}
-
-export interface CartItem {
-  id: number;
-  dishName: string;
-  dishType: string;
-  price: number;
-  quantity: number;
-  imageUrl?: string;
-  notes?: string;
-}
-
-export interface CartState {
-  items: CartItem[];
-  totalPrice: number;
-  totalQuantity: number;
-  userId: string;
 }
 
 // 购物车存储键
