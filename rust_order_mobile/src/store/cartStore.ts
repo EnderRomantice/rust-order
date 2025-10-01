@@ -28,7 +28,7 @@ class CartStore {
 
   private listeners: Array<(state: CartState) => void> = [];
 
-  private initialized = false;
+  public initialized = false;
 
   constructor() {
     // 延迟初始化，避免在服务器端渲染时出错
@@ -154,16 +154,10 @@ class CartStore {
 
   // 获取当前状态
   getState(): CartState {
-    // 如果还未初始化，触发初始化并返回默认状态
+    // 如果还未初始化，触发初始化并返回当前状态（可能包含已有数据）
     if (!this.initialized) {
-      // 异步初始化，但立即返回默认状态
+      // 异步初始化，但返回当前状态而不是空状态
       this.initializeCart().catch(console.error);
-      return {
-        items: [],
-        totalPrice: 0,
-        totalQuantity: 0,
-        userId: '',
-      };
     }
     return { ...this.state };
   }
@@ -199,6 +193,8 @@ class CartStore {
 
   // 更新商品数量
   async updateItemQuantity(itemId: number, quantity: number) {
+    await this.ensureInitialized();
+    
     if (quantity <= 0) {
       await this.removeItem(itemId);
       return;
@@ -215,6 +211,8 @@ class CartStore {
 
   // 移除商品
   async removeItem(itemId: number) {
+    await this.ensureInitialized();
+    
     this.state.items = this.state.items.filter(item => item.id !== itemId);
     this.calculateTotals();
     await this.saveToStorage();
@@ -223,6 +221,8 @@ class CartStore {
 
   // 减少商品数量
   async decreaseItemQuantity(itemId: number) {
+    await this.ensureInitialized();
+    
     const item = this.state.items.find(item => item.id === itemId);
     if (item) {
       if (item.quantity > 1) {
@@ -235,6 +235,8 @@ class CartStore {
 
   // 增加商品数量
   async increaseItemQuantity(itemId: number) {
+    await this.ensureInitialized();
+    
     const item = this.state.items.find(item => item.id === itemId);
     if (item) {
       await this.updateItemQuantity(itemId, item.quantity + 1);
@@ -243,6 +245,8 @@ class CartStore {
 
   // 清空购物车
   async clearCart() {
+    await this.ensureInitialized();
+    
     this.state.items = [];
     this.calculateTotals();
     await this.saveToStorage();
@@ -323,8 +327,26 @@ export const useCartStore = () => {
     // 只在客户端环境中订阅
     if (Platform.OS !== 'web' || typeof window !== 'undefined') {
       const unsubscribe = cartStore.subscribe(setCartState);
-      // 确保获取最新状态
-      setCartState(cartStore.getState());
+      
+      // 确保获取最新状态，并在初始化完成后再次更新
+      const updateState = () => {
+        setCartState(cartStore.getState());
+      };
+      
+      updateState();
+      
+      // 如果还未初始化，等待初始化完成后再次更新
+      if (!cartStore.initialized) {
+        const checkInitialized = () => {
+          if (cartStore.initialized) {
+            updateState();
+          } else {
+            setTimeout(checkInitialized, 50);
+          }
+        };
+        setTimeout(checkInitialized, 50);
+      }
+      
       return unsubscribe;
     }
   }, []);

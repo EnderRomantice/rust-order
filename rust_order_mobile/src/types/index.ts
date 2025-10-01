@@ -92,12 +92,8 @@ export interface CreateOrderRequest {
 // 组件 Props 类型
 export interface DraggableCartProps {
   visible: boolean;
-  cartItems: CartItem[];
-  totalPrice: number;
   onClose: () => void;
   onSubmitOrder: () => void;
-  onIncreaseQuantity: (itemId: number) => void;
-  onDecreaseQuantity: (itemId: number) => void;
 }
 
 export interface ButtonProps {

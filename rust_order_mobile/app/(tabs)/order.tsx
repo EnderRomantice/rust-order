@@ -98,13 +98,7 @@ export default function OrderScreen() {
     }, 1);
   };
 
-  const handleIncreaseQuantity = async (dishId: number) => {
-    await increaseItemQuantity(dishId);
-  };
 
-  const handleDecreaseQuantity = async (dishId: number) => {
-    await decreaseItemQuantity(dishId);
-  };
 
   const handleSubmitOrder = () => {
     if (cartItems.length === 0) {
@@ -294,12 +288,8 @@ export default function OrderScreen() {
       {/* 可拖动购物车 */}
       <DraggableCart
         visible={cartVisible && cartItems.length > 0}
-        cartItems={cartItems}
-        totalPrice={totalPrice}
         onClose={() => setCartVisible(false)}
         onSubmitOrder={handleSubmitOrder}
-        onIncreaseQuantity={increaseItemQuantity}
-        onDecreaseQuantity={decreaseItemQuantity}
       />
     </SafeAreaView>
   );

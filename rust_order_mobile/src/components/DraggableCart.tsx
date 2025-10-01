@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,141 +11,67 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  runOnJS,
   interpolate,
   Extrapolate,
 } from 'react-native-reanimated';
 import { CartItem, DraggableCartProps } from '../types';
+import { useCartStore } from '../store/cartStore';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MIN_HEIGHT = 200;
-const MAX_HEIGHT = SCREEN_HEIGHT * 0.8;
-const INITIAL_HEIGHT = SCREEN_HEIGHT * 0.5;
+const CART_HEIGHT = SCREEN_HEIGHT * 0.65; // 减少到65%，让弹出框位置更靠上
+const BOTTOM_MARGIN = 60; // 增加底部边距
 
 export const DraggableCart: React.FC<DraggableCartProps> = ({
   visible,
-  cartItems,
-  totalPrice,
   onClose,
   onSubmitOrder,
-  onIncreaseQuantity,
-  onDecreaseQuantity,
 }) => {
   const insets = useSafeAreaInsets();
   const translateY = useSharedValue(SCREEN_HEIGHT);
-  const height = useSharedValue(INITIAL_HEIGHT);
+  const [forceUpdate, setForceUpdate] = useState(0);
+  
+  // 使用内部的useCartStore获取实时数据
+  const {
+    items: cartItems,
+    totalPrice,
+    increaseItemQuantity,
+    decreaseItemQuantity,
+  } = useCartStore();
+
+  // 强制更新机制，确保组件在购物车状态变化时重新渲染
+  useEffect(() => {
+    setForceUpdate(prev => prev + 1);
+  }, [cartItems, totalPrice]);
 
   useEffect(() => {
     if (visible) {
-      translateY.value = withSpring(SCREEN_HEIGHT - INITIAL_HEIGHT);
-      height.value = INITIAL_HEIGHT;
+      translateY.value = withSpring(SCREEN_HEIGHT - CART_HEIGHT - BOTTOM_MARGIN, {
+        damping: 35,    // 进一步增加阻尼，减少弹跳
+        stiffness: 150, // 进一步降低刚度，使动画更加平缓
+      });
     } else {
-      translateY.value = withSpring(SCREEN_HEIGHT);
+      translateY.value = withSpring(SCREEN_HEIGHT, {
+        damping: 35,
+        stiffness: 150,
+      });
     }
   }, [visible]);
-
-  // 添加手势状态管理
-  const startY = useSharedValue(0);
-
-  const panGesture = Gesture.Pan()
-    .onStart(() => {
-      // 记录开始位置
-      startY.value = translateY.value;
-      
-      // 添加触觉反馈
-      runOnJS(() => {
-        try {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        } catch (error) {
-          // 忽略触觉反馈错误
-        }
-      })();
-    })
-    .onUpdate((event) => {
-      const newTranslateY = startY.value + event.translationY;
-      const newHeight = SCREEN_HEIGHT - newTranslateY;
-      
-      // 限制高度范围，添加阻尼效果
-      if (newHeight >= MIN_HEIGHT && newHeight <= MAX_HEIGHT) {
-        translateY.value = newTranslateY;
-        height.value = newHeight;
-      } else if (newHeight < MIN_HEIGHT) {
-        // 在最小高度以下添加阻尼效果
-        const damping = 0.3;
-        const dampedTranslation = startY.value + event.translationY * damping;
-        translateY.value = dampedTranslation;
-      } else if (newHeight > MAX_HEIGHT) {
-        // 在最大高度以上添加阻尼效果
-        const damping = 0.3;
-        const dampedTranslation = startY.value + event.translationY * damping;
-        translateY.value = dampedTranslation;
-      }
-    })
-    .onEnd((event) => {
-      const currentHeight = SCREEN_HEIGHT - translateY.value;
-      
-      // 如果向下拖动速度很快或高度太小，关闭购物车
-      if (event.velocityY > 800 || currentHeight < MIN_HEIGHT * 1.2) {
-        translateY.value = withSpring(SCREEN_HEIGHT, {
-          damping: 20,
-          stiffness: 300,
-        });
-        runOnJS(() => {
-          try {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          } catch (error) {
-            // 忽略触觉反馈错误
-          }
-          onClose();
-        })();
-        return;
-      }
-      
-      // 否则弹回到合适的高度
-      let targetHeight = currentHeight;
-      if (currentHeight < INITIAL_HEIGHT * 0.7) {
-        targetHeight = MIN_HEIGHT;
-      } else if (currentHeight > INITIAL_HEIGHT * 1.3) {
-        targetHeight = MAX_HEIGHT;
-      } else {
-        targetHeight = INITIAL_HEIGHT;
-      }
-      
-      translateY.value = withSpring(SCREEN_HEIGHT - targetHeight, {
-        damping: 20,
-        stiffness: 300,
-      });
-      height.value = withSpring(targetHeight, {
-        damping: 20,
-        stiffness: 300,
-      });
-      
-      // 添加触觉反馈
-      runOnJS(() => {
-        try {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        } catch (error) {
-          // 忽略触觉反馈错误
-        }
-      })();
-    });
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
       transform: [{ translateY: translateY.value }],
-      height: height.value,
+      height: CART_HEIGHT,
     };
   });
 
   const backdropStyle = useAnimatedStyle(() => {
     const opacity = interpolate(
       translateY.value,
-      [SCREEN_HEIGHT - MAX_HEIGHT, SCREEN_HEIGHT],
+      [SCREEN_HEIGHT - CART_HEIGHT - BOTTOM_MARGIN, SCREEN_HEIGHT],
       [0.5, 0],
       Extrapolate.CLAMP
     );
@@ -154,7 +80,7 @@ export const DraggableCart: React.FC<DraggableCartProps> = ({
     };
   });
 
-  const handleQuantityChange = (itemId: number, action: 'increase' | 'decrease') => {
+  const handleQuantityChange = async (itemId: number, action: 'increase' | 'decrease') => {
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch (error) {
@@ -162,9 +88,9 @@ export const DraggableCart: React.FC<DraggableCartProps> = ({
     }
     
     if (action === 'increase') {
-      onIncreaseQuantity(itemId);
+      await increaseItemQuantity(itemId);
     } else {
-      onDecreaseQuantity(itemId);
+      await decreaseItemQuantity(itemId);
     }
   };
 
@@ -214,21 +140,14 @@ export const DraggableCart: React.FC<DraggableCartProps> = ({
   if (!visible) return null;
 
   return (
-    <GestureHandlerRootView style={StyleSheet.absoluteFillObject}>
+    <View style={StyleSheet.absoluteFillObject}>
       {/* 背景遮罩 */}
       <Animated.View style={[styles.backdrop, backdropStyle]}>
         <TouchableOpacity style={StyleSheet.absoluteFillObject} onPress={onClose} />
       </Animated.View>
 
-      {/* 可拖动的购物车 */}
+      {/* 购物车 */}
       <Animated.View style={[styles.container, animatedStyle]}>
-        {/* 拖动指示器 - 可拖拽区域 */}
-        <GestureDetector gesture={panGesture}>
-          <Animated.View style={styles.dragArea}>
-            <View style={styles.dragIndicator} />
-          </Animated.View>
-        </GestureDetector>
-        
         {/* 购物车头部 */}
         <View style={styles.header}>
           <Text style={styles.title}>已选商品</Text>
@@ -237,40 +156,42 @@ export const DraggableCart: React.FC<DraggableCartProps> = ({
           </TouchableOpacity>
         </View>
 
-          {/* 购物车内容 */}
-          <View style={styles.content}>
-            <FlatList
-              data={cartItems}
-              renderItem={renderCartItem}
-              keyExtractor={item => item.id.toString()}
-              style={styles.list}
-              showsVerticalScrollIndicator={false}
-            />
-          </View>
+        {/* 购物车内容 */}
+        <View style={styles.content}>
+          <FlatList
+            data={cartItems}
+            renderItem={renderCartItem}
+            keyExtractor={item => `${item.id}-${item.quantity}`}
+            style={styles.list}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+            extraData={`${cartItems.map(item => item.quantity).join(',')}-${forceUpdate}`}
+          />
+        </View>
 
-          {/* 购物车底部 */}
-          <View style={[styles.footer, { paddingBottom: 20 + insets.bottom }]}>
-            <View style={styles.totalInfo}>
-              <Text style={styles.totalLabel}>总计</Text>
-              <Text style={styles.totalPrice}>¥{totalPrice.toFixed(2)}</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.submitButton}
-              onPress={() => {
-                try {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                } catch (error) {
-                  // 忽略触觉反馈错误
-                }
-                onSubmitOrder();
-              }}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.submitButtonText}>提交订单</Text>
-            </TouchableOpacity>
+        {/* 购物车底部 */}
+        <View style={[styles.footer, { paddingBottom: Math.max(20, insets.bottom + 10) }]}>
+          <View style={styles.totalInfo}>
+            <Text style={styles.totalLabel}>总计</Text>
+            <Text style={styles.totalPrice}>¥{totalPrice.toFixed(2)}</Text>
           </View>
-        </Animated.View>
-    </GestureHandlerRootView>
+          <TouchableOpacity
+            style={styles.submitButton}
+            onPress={() => {
+              try {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              } catch (error) {
+                // 忽略触觉反馈错误
+              }
+              onSubmitOrder();
+            }}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.submitButtonText}>提交订单</Text>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </View>
   );
 };
 
@@ -286,53 +207,39 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    elevation: 20,
+    elevation: 15,  // 减少阴影强度
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-  },
-  dragArea: {
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    // 确保拖拽区域可以接收手势
-  },
-  dragIndicator: {
-    width: 50,
-    height: 5,
-    backgroundColor: '#C0C0C0',
-    borderRadius: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: -4 },  // 减少阴影偏移
+    shadowOpacity: 0.15,  // 减少阴影透明度
+    shadowRadius: 12,     // 减少阴影半径
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
+    padding: 16,  // 减少padding
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,  // 稍微减小字体
     fontWeight: '700',
     color: '#1a1a1a',
   },
   content: {
     flex: 1,
-    minHeight: 120,
+    minHeight: 100,  // 减少最小高度
   },
   list: {
     flex: 1,
   },
+  listContent: {
+    paddingBottom: 10,  // 为列表底部添加间距
+  },
   cartItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: 14,  // 稍微减少padding
     borderBottomWidth: 1,
     borderBottomColor: '#F5F5F5',
   },
@@ -385,9 +292,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     shadowColor: '#1DA1F2',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.2,  // 减少按钮阴影
+    shadowRadius: 3,
+    elevation: 2,  // 减少elevation
   },
   cartItemQuantity: {
     fontSize: 16,
@@ -404,7 +311,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   footer: {
-    padding: 20,
+    padding: 16,  // 减少padding
     borderTopWidth: 1,
     borderTopColor: '#F0F0F0',
     backgroundColor: '#FFFFFF',
@@ -413,7 +320,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 14,  // 稍微减少间距
   },
   totalLabel: {
     fontSize: 18,
@@ -427,13 +334,13 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     backgroundColor: '#1DA1F2',
-    paddingVertical: 16,
-    borderRadius: 16,
+    paddingVertical: 14,  // 稍微减少padding
+    borderRadius: 12,     // 减少圆角
     shadowColor: '#1DA1F2',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 3 },  // 减少阴影
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,  // 减少elevation
     alignItems: 'center',
     justifyContent: 'center',
   },
