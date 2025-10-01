@@ -28,7 +28,6 @@ public class MenuServiceImpl implements MenuService {
     
     @Override
     public List<Menu> getAvailableMenuItems() {
-        // 从t_dish表中获取所有可用菜品
         List<Dish> dishes = dishRepository.findByIsAvailableOrderByDishTypeAscSortOrderAsc(true);
         return dishes.stream()
                 .map(this::convertDishToMenu)
@@ -37,7 +36,6 @@ public class MenuServiceImpl implements MenuService {
     
     @Override
     public List<Menu> getAllMenuItems() {
-        // 从t_dish表中获取所有菜品（包括已下架的，用于管理端）
         List<Dish> dishes = dishRepository.findAll();
         return dishes.stream()
                 .map(this::convertDishToMenu)
@@ -46,7 +44,6 @@ public class MenuServiceImpl implements MenuService {
     
     @Override
     public List<Menu> getAvailableMenuItemsByType(String dishType) {
-        // 从t_dish表中获取指定类型的可用菜品
         List<Dish> dishes = dishRepository.findByDishTypeAndIsAvailableOrderBySortOrderAscPriceAsc(dishType, true);
         return dishes.stream()
                 .map(this::convertDishToMenu)
@@ -55,14 +52,12 @@ public class MenuServiceImpl implements MenuService {
     
     @Override
     public Optional<Menu> getMenuItemByName(String dishName) {
-        // 从t_dish表中查找菜品
         Optional<Dish> dish = dishRepository.findByDishNameAndIsAvailable(dishName, true);
         return dish.map(this::convertDishToMenu);
     }
     
     @Override
     public boolean isMenuItemAvailable(String dishName) {
-        // 检查t_dish表中是否存在该菜品且可用
         return dishRepository.existsByDishNameAndIsAvailable(dishName, true);
     }
     
@@ -116,5 +111,30 @@ public class MenuServiceImpl implements MenuService {
         menu.setIsAvailable(isAvailable);
         menu.setUpdatedAt(new Date());
         return menuRepository.save(menu);
+    }
+    
+    @Override
+    public List<Dish> getAvailableDishes() {
+        return dishRepository.findByIsAvailableTrueOrderBySortOrderAsc();
+    }
+
+    @Override
+    public List<Dish> getAllDishes() {
+        return dishRepository.findAllByOrderBySortOrderAsc();
+    }
+
+    @Override
+    public List<Dish> getDishesByType(String dishType) {
+        return dishRepository.findByDishTypeAndIsAvailableTrueOrderBySortOrderAsc(dishType);
+    }
+
+    @Override
+    public Dish getDishById(Long id) {
+        return dishRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public boolean isDishAvailable(String dishName) {
+        return dishRepository.findByDishNameAndIsAvailableTrue(dishName).isPresent();
     }
 }

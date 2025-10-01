@@ -9,21 +9,15 @@ import {
   TodayStats,
   WeeklyStats,
   APIError,
+  QueuePositionResponse,
 } from '../types';
 
-// 根据平台自动选择合适的API地址
 const getBaseUrl = () => {
-  // // 在Web环境下使用localhost
-  // if (typeof window !== 'undefined') {
-  //   return 'http://localhost:8080';
-  // }
-  // 在移动端环境下使用开发机器的IP地址
   return 'http://192.168.101.131:8080';
 };
 
 const BASE_URL = getBaseUrl();
 
-// 通用API服务类 - 单例模式
 export class ApiService {
   private static instance: ApiService;
   
@@ -36,7 +30,6 @@ export class ApiService {
     return ApiService.instance;
   }
 
-  // 通用请求方法
   async request<T>(
     endpoint: string,
     options: RequestInit = {}
@@ -324,6 +317,16 @@ export const orderAPI = {
     } catch (error) {
       console.error('Failed to fetch history orders:', error);
       throw new APIError('获取历史订单失败', 500);
+    }
+  },
+
+  // 获取用户在队列中的位置
+  getUserQueuePosition: async (userId: string): Promise<QueuePositionResponse> => {
+    try {
+      return await apiService.get<QueuePositionResponse>(`/api/orders/user/${encodeURIComponent(userId)}/queue-position`);
+    } catch (error) {
+      console.error('Failed to fetch user queue position:', error);
+      throw new APIError('获取队列位置失败', 500);
     }
   },
 };

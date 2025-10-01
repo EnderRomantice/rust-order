@@ -24,37 +24,37 @@ public class Dish {
     private Long id;
     
     @Column(name = "dish_name", nullable = false, unique = true)
-    private String dishName; // 菜品名称
+    private String dishName;
     
     @Column(name = "dish_type", nullable = false)
-    private String dishType; // 菜品类型
+    private String dishType;
     
     @Column(name = "price", nullable = false)
-    private Double price; // 价格
+    private Double price;
     
     @Column(name = "description")
-    private String description; // 菜品描述
+    private String description;
     
     @Column(name = "image_url")
-    private String imageUrl; // 菜品图片URL
+    private String imageUrl;
     
     @Column(name = "is_available", nullable = false)
-    private Boolean isAvailable = true; // 是否可用
+    private Boolean isAvailable = true;
     
     @Column(name = "estimated_time")
-    private Integer estimatedTime; // 预计制作时间（分钟）
+    private Integer estimatedTime;
     
     @Column(name = "sort_order")
-    private Integer sortOrder = 0; // 排序顺序
+    private Integer sortOrder = 0;
     
     @Column(name = "sales_count")
-    private Integer salesCount = 0; // 销量统计
+    private Integer salesCount = 0;
     
     @Column(name = "rating")
-    private Double rating = 0.0; // 菜品评分（0-5分）
+    private Double rating = 0.0;
     
     @Column(name = "rating_count")
-    private Integer ratingCount = 0; // 评分人数
+    private Integer ratingCount = 0;
     
     @Column(name = "created_at")
     private Date createdAt;

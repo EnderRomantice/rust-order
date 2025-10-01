@@ -13,8 +13,9 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Card, Button, LoadingSpinner } from '@/src/components';
-import { orderAPI, type Order } from '@/src/services/api';
+import { orderAPI, type Order, type QueuePositionResponse } from '@/src/services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getUserId as getDeviceBasedUserId } from '@/src/services/deviceId';
 
 const ORDER_STATUS_MAP = {
   PENDING: { text: '待处理', color: '#F7931E' },
@@ -33,23 +34,32 @@ export default function PickupScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [userId, setUserId] = useState<string>('');
+  const [queuePosition, setQueuePosition] = useState<QueuePositionResponse | null>(null);
 
   // 获取用户ID
   useEffect(() => {
     const getUserId = async () => {
       try {
-        let storedUserId = await AsyncStorage.getItem('userId');
-        if (!storedUserId) {
-          // 如果没有用户ID，生成一个临时的
-          storedUserId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-          await AsyncStorage.setItem('userId', storedUserId);
-        }
-        setUserId(storedUserId);
+        // 使用设备ID服务获取用户ID
+        const deviceBasedUserId = await getDeviceBasedUserId();
+        setUserId(deviceBasedUserId);
+        console.log('使用设备ID服务获取的用户ID:', deviceBasedUserId);
       } catch (error) {
-        console.error('获取用户ID失败:', error);
-        // 使用临时ID
-        const tempUserId = `temp_${Date.now()}`;
-        setUserId(tempUserId);
+        console.error('设备ID服务失败，使用回退方案:', error);
+        try {
+          // 回退到原有方案
+          let storedUserId = await AsyncStorage.getItem('@rust_order_user_id');
+          if (!storedUserId) {
+            // 如果没有用户ID，使用与订单提交相同的临时ID
+            storedUserId = 'user123';
+            await AsyncStorage.setItem('@rust_order_user_id', storedUserId);
+          }
+          setUserId(storedUserId);
+        } catch (fallbackError) {
+          console.error('回退方案也失败:', fallbackError);
+          // 最后的回退方案
+          setUserId('user123');
+        }
       }
     };
     getUserId();
@@ -65,8 +75,12 @@ export default function PickupScreen() {
   const loadOrders = async () => {
     try {
       setLoading(true);
-      const userOrders = await orderAPI.getUserOrders(userId);
+      const [userOrders, queuePos] = await Promise.all([
+        orderAPI.getUserOrders(userId),
+        orderAPI.getUserQueuePosition(userId)
+      ]);
       setOrders(userOrders);
+      setQueuePosition(queuePos);
     } catch (error) {
       console.error('加载订单失败:', error);
       Alert.alert('错误', '加载订单失败，请稍后重试');
@@ -78,8 +92,12 @@ export default function PickupScreen() {
   const refreshOrders = async () => {
     try {
       setRefreshing(true);
-      const userOrders = await orderAPI.getUserOrders(userId);
+      const [userOrders, queuePos] = await Promise.all([
+        orderAPI.getUserOrders(userId),
+        orderAPI.getUserQueuePosition(userId)
+      ]);
       setOrders(userOrders);
+      setQueuePosition(queuePos);
     } catch (error) {
       console.error('刷新订单失败:', error);
       Alert.alert('错误', '刷新订单失败，请稍后重试');
@@ -138,10 +156,14 @@ export default function PickupScreen() {
           </View>
         </View>
 
-        {item.orderStatus === 'PREPARING' && (
+        {['PENDING', 'CONFIRMED', 'PREPARING'].includes(item.orderStatus) && queuePosition?.hasActiveOrder && (
           <View style={styles.queueInfo}>
             <Ionicons name="time-outline" size={16} color="#F91880" />
-            <Text style={styles.queueText}>前面还有 {item.queueNumber} 单</Text>
+            <Text style={styles.queueText}>
+              {queuePosition.ordersAhead > 0 
+                ? `前面还有 ${queuePosition.ordersAhead} 单` 
+                : '您的订单即将开始制作'}
+            </Text>
           </View>
         )}
 

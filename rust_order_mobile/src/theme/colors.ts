@@ -1,113 +1,127 @@
-// Twitter 风格颜色主题配置
-export const colors = {
-  // 主色调 - 推特蓝
-  primary: {
-    main: '#1DA1F2',
-    light: '#71C9F8',
-    dark: '#1991DA',
-    contrastText: '#FFFFFF',
-  },
-  
-  // 次要色调 - 深灰
-  secondary: {
-    main: '#536471',
-    light: '#8B98A5',
-    dark: '#3C4043',
-    contrastText: '#FFFFFF',
-  },
-  
-  // 成功色 - 推特绿
-  success: {
-    main: '#00BA7C',
-    light: '#4DD4AC',
-    dark: '#00A368',
-    contrastText: '#FFFFFF',
-  },
-  
-  // 警告色 - 推特黄
-  warning: {
-    main: '#FFD400',
-    light: '#FFED4A',
-    dark: '#F7B801',
-    contrastText: '#000000',
-  },
-  
-  // 错误色 - 推特红
-  error: {
-    main: '#F91880',
-    light: '#FF69B4',
-    dark: '#E1306C',
-    contrastText: '#FFFFFF',
-  },
-  
-  // 信息色 - 推特蓝
-  info: {
-    main: '#1DA1F2',
-    light: '#71C9F8',
-    dark: '#1991DA',
-    contrastText: '#FFFFFF',
-  },
-  
-  // 灰度色
-  grey: {
-    50: '#FAFAFA',
-    100: '#F5F5F5',
-    200: '#EEEEEE',
-    300: '#E0E0E0',
-    400: '#BDBDBD',
-    500: '#9E9E9E',
-    600: '#757575',
-    700: '#616161',
-    800: '#424242',
-    900: '#212121',
-  },
-  
-  // 背景色 - 推特风格
-  background: {
-    default: '#FFFFFF',
-    paper: '#FFFFFF',
-    disabled: '#F7F9FA',
-    hover: '#F7F9FA',
-  },
-  
-  // 文本色 - 推特风格
-  text: {
-    primary: '#0F1419',
-    secondary: '#536471',
-    disabled: '#8B98A5',
-    hint: '#8B98A5',
-  },
-  
-  // 分割线 - 推特风格
-  divider: '#EFF3F4',
-  
-  // 覆盖层
-  overlay: 'rgba(0, 0, 0, 0.5)',
-  
-  // 阴影
-  shadow: '#000000',
+export const primary = {
+  50: '#E3F2FD',
+  100: '#BBDEFB',
+  200: '#90CAF9',
+  300: '#64B5F6',
+  400: '#42A5F5',
+  500: '#1DA1F2',
+  600: '#1976D2',
+  700: '#1565C0',
+  800: '#0D47A1',
+  900: '#0A3D91',
 };
 
-// 食品相关颜色 - 推特风格
-export const foodColors = {
-  // 菜品分类颜色
-  categories: {
-    hot: '#F91880', // 热菜 - 推特红
-    cold: '#1DA1F2', // 凉菜 - 推特蓝
-    soup: '#00BA7C', // 汤类 - 推特绿
-    staple: '#FFD400', // 主食 - 推特黄
-    dessert: '#FF69B4', // 甜品 - 浅红
-    drink: '#71C9F8', // 饮品 - 浅蓝
+export const secondary = {
+  50: '#F5F5F5',
+  100: '#EEEEEE',
+  200: '#E0E0E0',
+  300: '#BDBDBD',
+  400: '#9E9E9E',
+  500: '#536471',
+  600: '#424242',
+  700: '#303030',
+  800: '#212121',
+  900: '#121212',
+};
+
+export const success = {
+  50: '#E8F5E8',
+  100: '#C8E6C9',
+  200: '#A5D6A7',
+  300: '#81C784',
+  400: '#66BB6A',
+  500: '#00BA7C',
+  600: '#43A047',
+  700: '#388E3C',
+  800: '#2E7D32',
+  900: '#1B5E20',
+};
+
+export const warning = {
+  50: '#FFF8E1',
+  100: '#FFECB3',
+  200: '#FFE082',
+  300: '#FFD54F',
+  400: '#FFCA28',
+  500: '#FFD400',
+  600: '#FFB300',
+  700: '#FF8F00',
+  800: '#FF6F00',
+  900: '#E65100',
+};
+
+export const error = {
+  50: '#FFEBEE',
+  100: '#FFCDD2',
+  200: '#EF9A9A',
+  300: '#E57373',
+  400: '#EF5350',
+  500: '#F91880',
+  600: '#E53935',
+  700: '#D32F2F',
+  800: '#C62828',
+  900: '#B71C1C',
+};
+
+export const info = {
+  50: '#E3F2FD',
+  100: '#BBDEFB',
+  200: '#90CAF9',
+  300: '#64B5F6',
+  400: '#42A5F5',
+  500: '#1DA1F2',
+  600: '#1976D2',
+  700: '#1565C0',
+  800: '#0D47A1',
+  900: '#0A3D91',
+};
+
+export const gray = {
+  50: '#FAFAFA',
+  100: '#F5F5F5',
+  200: '#EEEEEE',
+  300: '#E0E0E0',
+  400: '#BDBDBD',
+  500: '#9E9E9E',
+  600: '#757575',
+  700: '#616161',
+  800: '#424242',
+  900: '#212121',
+};
+
+export const background = {
+  primary: '#FFFFFF',
+  secondary: '#F7F9FA',
+  tertiary: '#E1E8ED',
+};
+
+export const text = {
+  primary: '#14171A',
+  secondary: '#536471',
+  tertiary: '#AAB8C2',
+};
+
+export const divider = '#E1E8ED';
+export const overlay = 'rgba(0, 0, 0, 0.5)';
+export const shadow = 'rgba(0, 0, 0, 0.1)';
+
+export const food = {
+  category: {
+    hot: '#F91880',
+    cold: '#1DA1F2',
+    soup: '#00BA7C',
+    staple: '#FFD400',
+    dessert: '#FF69B4',
+    drink: '#71C9F8',
   },
   
-  // 订单状态颜色
-  orderStatus: {
-    pending: '#FFD400', // 待处理 - 推特黄
-    confirmed: '#1DA1F2', // 已确认 - 推特蓝
-    preparing: '#F91880', // 制作中 - 推特红
-    ready: '#00BA7C', // 已完成 - 推特绿
-    completed: '#536471', // 已取餐 - 推特灰
-    cancelled: '#F91880', // 已取消 - 推特红
+  status: {
+    pending: '#FFD400',
+    confirmed: '#1DA1F2',
+    preparing: '#F91880',
+    ready: '#00BA7C',
+    completed: '#536471',
+    cancelled: '#F91880',
   },
 };
 

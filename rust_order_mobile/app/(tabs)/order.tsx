@@ -15,7 +15,9 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Card, Button, Badge, DraggableCart } from '@/src/components';
 import { useCartStore } from '@/src/store/cartStore';
-import { dishAPI, type Dish } from '@/src/services/api';
+import { dishAPI, orderAPI, type Dish, type CreateOrderRequest } from '@/src/services/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getUserId as getDeviceBasedUserId } from '@/src/services/deviceId';
 
 // 店铺信息
 const STORE_INFO = {
@@ -55,6 +57,7 @@ export default function OrderScreen() {
     increaseItemQuantity,
     decreaseItemQuantity,
     getItemQuantity,
+    clearCart,
   } = useCartStore();
 
   // 获取菜品数据
@@ -118,29 +121,42 @@ export default function OrderScreen() {
           text: '确认',
           onPress: async () => {
             try {
-              // 这里可以调用API提交订单
-              // const orderData = {
-              //   items: cartItems,
-              //   totalPrice: totalPrice,
-              //   storeInfo: STORE_INFO
-              // };
-              // await orderAPI.submitOrder(orderData);
+              // 获取用户ID
+              const userId = await getDeviceBasedUserId();
+              
+              // 创建订单数据
+              const orderData: CreateOrderRequest = {
+                userId: userId,
+                notes: '', // 可以添加备注功能
+                items: cartItems.map(item => ({
+                  dishName: item.dishName,
+                  dishType: item.dishType,
+                  unitPrice: item.price,
+                  quantity: item.quantity,
+                  estimatedTime: 15, // 默认预估时间，可以从菜品信息获取
+                  itemNotes: item.notes || ''
+                }))
+              };
+
+              // 调用API创建订单
+              const order = await orderAPI.createOrder(orderData);
               
               Alert.alert(
                 '订单提交成功',
-                '您的订单已提交，请前往取餐页面查看订单状态',
+                `您的订单已提交！\n取餐码：${order.pickupCode}\n请前往取餐页面查看订单状态`,
                 [
                   {
                     text: '确定',
                     onPress: () => {
                       setCartVisible(false);
                       // 清空购物车
-                      // clearCart(); // 如果有这个方法的话
+                      clearCart();
                     },
                   },
                 ]
               );
             } catch (error) {
+              console.error('订单提交失败:', error);
               Alert.alert('提交失败', '订单提交失败，请稍后重试');
             }
           },

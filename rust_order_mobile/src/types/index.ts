@@ -1,44 +1,42 @@
-// 统一的类型定义文件
-
-// 基础数据类型
 export interface Dish {
   id: number;
   dishName: string;
   dishType: string;
   price: number;
-  description: string;
-  imageUrl: string;
+  description?: string;
+  imageUrl?: string;
   isAvailable: boolean;
   estimatedTime: number;
-  sortOrder: number;
-  createdAt: string;
-  updatedAt: string;
+  sortOrder?: number;
+  salesCount?: number;
+  rating?: number;
+  ratingCount?: number;
 }
 
-// 购物车相关类型
 export interface CartItem {
   id: number;
   dishName: string;
   dishType: string;
   price: number;
   quantity: number;
-  imageUrl?: string;
   notes?: string;
+  imageUrl?: string;
+  estimatedTime?: number;
 }
 
-export interface CartState {
+export interface Cart {
+  userId: string;
   items: CartItem[];
   totalPrice: number;
   totalQuantity: number;
-  userId: string;
 }
 
-// API 购物车类型（与后端接口对应）
 export interface ApiCartItem {
-  name: string;
-  orderType: string;
-  price: number;
+  dishName: string;
+  dishType: string;
+  unitPrice: number;
   quantity: number;
+  notes?: string;
 }
 
 export interface ApiCart {
@@ -46,8 +44,6 @@ export interface ApiCart {
   items: ApiCartItem[];
   totalPrice: number;
   totalQuantity: number;
-  createdAt: string;
-  updatedAt: string;
 }
 
 // 订单相关类型
@@ -89,7 +85,13 @@ export interface CreateOrderRequest {
   }[];
 }
 
-// 组件 Props 类型
+export interface QueuePositionResponse {
+  hasActiveOrder: boolean;
+  ordersAhead: number;
+  queueNumber: number;
+  orderStatus: string | null;
+}
+
 export interface DraggableCartProps {
   visible: boolean;
   onClose: () => void;
@@ -131,7 +133,6 @@ export interface TextInputProps {
   required?: boolean;
 }
 
-// 统计相关类型
 export interface TodayStats {
   totalOrders: number;
   totalRevenue: number;
@@ -144,7 +145,6 @@ export interface WeeklyStats {
   dailyStats: Array<{ date: string; orders: number; revenue: number }>;
 }
 
-// API 错误类型
 export class APIError extends Error {
   constructor(
     message: string,

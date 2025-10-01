@@ -8,6 +8,30 @@ import {
 } from 'react-native';
 import { BadgeProps } from '../types';
 
+const sizeStyles = {
+  small: {
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    borderRadius: 10,
+    minWidth: 16,
+    minHeight: 16,
+  },
+  medium: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    minWidth: 20,
+    minHeight: 20,
+  },
+  large: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 14,
+    minWidth: 24,
+    minHeight: 24,
+  },
+};
+
 const Badge: React.FC<BadgeProps> = ({
   count,
   maxCount = 99,

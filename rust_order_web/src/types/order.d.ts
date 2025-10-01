@@ -1,9 +1,5 @@
-// 订单相关类型定义
-
-// 订单状态类型
 type OrderStatus = "PENDING" | "CONFIRMED" | "PREPARING" | "READY" | "COMPLETED" | "CANCELLED";
 
-// 订单项类型定义
 interface OrderItemModel {
   id: number;
   dishName: string;
@@ -15,7 +11,6 @@ interface OrderItemModel {
   itemNotes?: string;
 }
 
-// 订单类型定义
 interface OrderModel {
   id: number;
   userId: string;
@@ -30,7 +25,6 @@ interface OrderModel {
   items: OrderItemModel[];
 }
 
-// 创建订单请求类型
 interface CreateOrderItemRequest {
   dishName: string;
   dishType: string;
@@ -46,7 +40,6 @@ interface CreateOrderRequest {
   items: CreateOrderItemRequest[];
 }
 
-// 订单列表类型（现在是简单的数组，不再按取餐码分组）
 type OrderListModel = OrderModel[];
 
 export { 

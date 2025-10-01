@@ -24,25 +24,25 @@ public class Menu {
     private Long id;
     
     @Column(name = "dish_name", nullable = false)
-    private String dishName; // 菜品名称
+    private String dishName;
     
     @Column(name = "dish_type", nullable = false)
-    private String dishType; // 菜品类型
+    private String dishType;
     
     @Column(name = "price", nullable = false)
-    private Double price; // 价格
+    private Double price;
     
     @Column(name = "description")
-    private String description; // 菜品描述
+    private String description;
     
     @Column(name = "image_url")
-    private String imageUrl; // 菜品图片URL
+    private String imageUrl;
     
     @Column(name = "is_available", nullable = false)
-    private Boolean isAvailable = true; // 是否可用
+    private Boolean isAvailable = true;
     
     @Column(name = "estimated_time")
-    private Integer estimatedTime; // 预计制作时间（分钟）
+    private Integer estimatedTime;
     
     @Column(name = "created_at")
     private Date createdAt;

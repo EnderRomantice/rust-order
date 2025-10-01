@@ -26,19 +26,18 @@ const WorkspacePage = ({ onOrderUpdate }: WorkspacePageProps) => {
     }
   }, []);
 
-  // 使用智能刷新，避免在用户操作时打断
   const { isUserActive, manualRefresh } = useSmartRefresh(
-    () => getOrderList(false), // 自动刷新时不显示loading
-    30000, // 30秒间隔
-    3000   // 用户停止操作3秒后才允许自动刷新
+    () => getOrderList(false),
+    30000,
+    3000
   );
 
   useEffect(() => {
-    getOrderList(true); // 初始加载显示loading
+    getOrderList(true);
   }, []);
 
   const handleOrderUpdate = () => {
-    manualRefresh(); // 使用智能刷新的手动刷新方法
+    manualRefresh();
     onOrderUpdate?.();
   };
 

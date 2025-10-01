@@ -28,10 +28,8 @@ const HistoryOrdersPage = () => {
   const getHistoryOrders = async () => {
     try {
       setLoading(true);
-      // 获取所有订单
       const allOrders = await res('GET', '/api/orders');
       
-      // 筛选历史订单（已完成、已取消、待取餐）
       const historyOrders = (allOrders || []).filter((order: any) => 
         ['COMPLETED', 'CANCELLED', 'READY'].includes(order.orderStatus)
       ).sort((a: any, b: any) => 

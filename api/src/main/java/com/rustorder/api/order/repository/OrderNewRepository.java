@@ -19,6 +19,9 @@ public interface OrderNewRepository extends JpaRepository<OrderNew, Long> {
     // 根据用户ID查询订单历史
     List<OrderNew> findByUserIdOrderByCreatedAtDesc(String userId);
     
+    // 根据用户ID和订单状态查询订单
+    List<OrderNew> findByUserIdAndOrderStatusIn(String userId, List<OrderStatus> statuses);
+    
     // 根据订单状态查询，按队列号排序
     List<OrderNew> findByOrderStatusOrderByQueueNumberAsc(OrderStatus status);
     

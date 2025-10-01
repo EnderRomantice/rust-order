@@ -108,7 +108,6 @@ const MenuManagePage = () => {
   }, []);
 
   const toggleAvailability = useCallback(async (dishId: number, isAvailable: boolean) => {
-    // 防止重复点击
     if (pendingToggle.has(dishId)) {
       return;
     }
@@ -116,10 +115,8 @@ const MenuManagePage = () => {
     try {
       console.log('切换菜品状态:', { dishId, currentStatus: isAvailable, newStatus: !isAvailable });
       
-      // 添加到pending状态
       setPendingToggle(prev => new Set(prev).add(dishId));
       
-      // 乐观更新：立即更新UI状态
       setDishes(prevDishes => 
         prevDishes.map(dish => 
           dish.id === dishId 
@@ -133,10 +130,8 @@ const MenuManagePage = () => {
       });
       
       console.log('切换菜品状态成功:', response);
-      // 不再需要刷新整个列表
     } catch (err) {
       console.error('切换菜品状态失败:', err);
-      // 如果请求失败，回滚状态
       setDishes(prevDishes => 
         prevDishes.map(dish => 
           dish.id === dishId 
@@ -146,7 +141,6 @@ const MenuManagePage = () => {
       );
       alert(`切换菜品状态失败: ${(err as Error).message || err}`);
     } finally {
-      // 移除pending状态
       setPendingToggle(prev => {
         const newSet = new Set(prev);
         newSet.delete(dishId);
@@ -159,7 +153,6 @@ const MenuManagePage = () => {
     try {
       const response = await res('POST', '/api/dishes/admin', newDish);
       
-      // 乐观更新：立即添加新菜品到列表
       setDishes(prevDishes => [...prevDishes, response]);
       
       setNewDish({
@@ -170,7 +163,6 @@ const MenuManagePage = () => {
         estimatedTime: 15
       });
       onClose();
-      // 不再需要刷新整个列表
     } catch (err) {
       console.error('创建菜品失败:', err);
       alert(`创建菜品失败: ${(err as Error).message || err}`);

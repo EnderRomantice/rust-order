@@ -10,10 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * 改进的订单服务类
- * 基于新的数据结构设计
- */
 @Service
 @Transactional
 public class ImprovedOrderService {
@@ -27,10 +23,6 @@ public class ImprovedOrderService {
         this.orderItemRepository = orderItemRepository;
     }
     
-    /**
-     * 创建订单
-     * 现在一个订单包含多个菜品项，逻辑更清晰
-     */
     public OrderResponse createOrder(CreateOrderRequest request) {
         OrderNew order = new OrderNew();
         order.setUserId(request.getUserId());
@@ -41,7 +33,6 @@ public class ImprovedOrderService {
         order.setCreatedAt(new Date());
         order.setUpdatedAt(new Date());
         
-        // 创建订单项
         List<OrderItem> items = new ArrayList<>();
         double totalPrice = 0.0;
         int maxEstimatedTime = 0;
@@ -71,9 +62,6 @@ public class ImprovedOrderService {
         return convertToOrderResponse(order);
     }
     
-    /**
-     * 更新订单状态
-     */
     public OrderResponse updateOrderStatus(Long orderId, OrderStatus newStatus, String notes) {
         OrderNew order = orderRepository.findById(orderId)
             .orElseThrow(() -> new RuntimeException("订单不存在"));
@@ -89,10 +77,6 @@ public class ImprovedOrderService {
         return convertToOrderResponse(order);
     }
     
-    /**
-     * 根据取餐码查询订单
-     * 现在一个取餐码只对应一个订单记录
-     */
     public OrderResponse getOrderByPickupCode(String pickupCode) {
         OrderNew order = orderRepository.findByPickupCode(pickupCode)
             .orElseThrow(() -> new RuntimeException("订单不存在"));
@@ -100,10 +84,6 @@ public class ImprovedOrderService {
         return convertToOrderResponse(order);
     }
     
-    /**
-     * 获取订单队列
-     * 现在逻辑更简单，不需要按取餐码分组
-     */
     public List<OrderResponse> getOrderQueue() {
         List<OrderNew> orders = orderRepository.findByOrderStatusInOrderByQueueNumberAsc(
             Arrays.asList(OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.PREPARING)
@@ -114,9 +94,39 @@ public class ImprovedOrderService {
             .collect(Collectors.toList());
     }
     
-    /**
-     * 获取所有订单
-     */
+    public QueuePositionResponse getUserQueuePosition(String userId) {
+        List<OrderNew> userActiveOrders = orderRepository.findByUserIdAndOrderStatusIn(
+            userId, 
+            Arrays.asList(OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.PREPARING)
+        );
+        
+        if (userActiveOrders.isEmpty()) {
+            return new QueuePositionResponse(false, 0, 0, null);
+        }
+        
+        OrderNew userOrder = userActiveOrders.get(0);
+        
+        List<OrderNew> queueOrders = orderRepository.findByOrderStatusInOrderByQueueNumberAsc(
+            Arrays.asList(OrderStatus.PENDING, OrderStatus.CONFIRMED, OrderStatus.PREPARING)
+        );
+        
+        int position = 0;
+        for (OrderNew order : queueOrders) {
+            if (order.getQueueNumber() < userOrder.getQueueNumber()) {
+                position++;
+            } else if (order.getId().equals(userOrder.getId())) {
+                break;
+            }
+        }
+        
+        return new QueuePositionResponse(
+            true, 
+            position, 
+            userOrder.getQueueNumber(), 
+            userOrder.getOrderStatus().getDisplayName()
+        );
+    }
+    
     public List<OrderResponse> getAllOrders() {
         List<OrderNew> orders = orderRepository.findAll();
         return orders.stream()
@@ -124,18 +134,12 @@ public class ImprovedOrderService {
             .collect(Collectors.toList());
     }
     
-    /**
-     * 根据ID获取订单
-     */
     public OrderResponse getOrderById(Long id) {
         OrderNew order = orderRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("订单不存在"));
         return convertToOrderResponse(order);
     }
     
-    /**
-     * 获取用户订单
-     */
     public List<OrderResponse> getUserOrders(String userId) {
         List<OrderNew> orders = orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
         return orders.stream()
@@ -143,9 +147,6 @@ public class ImprovedOrderService {
             .collect(Collectors.toList());
     }
     
-    /**
-     * 根据状态获取订单
-     */
     public List<OrderResponse> getOrdersByStatus(OrderStatus status) {
         List<OrderNew> orders = orderRepository.findByOrderStatusOrderByQueueNumberAsc(status);
         // 按更新时间倒序排序（最新的在前）
@@ -159,9 +160,6 @@ public class ImprovedOrderService {
             .collect(Collectors.toList());
     }
     
-    /**
-     * 更新订单
-     */
     public OrderResponse updateOrder(Long id, CreateOrderRequest request) {
         OrderNew order = orderRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("订单不存在"));
@@ -206,9 +204,6 @@ public class ImprovedOrderService {
         return convertToOrderResponse(savedOrder);
     }
     
-    /**
-     * 删除订单
-     */
     public void deleteOrder(Long id) {
         OrderNew order = orderRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("订单不存在"));
@@ -225,9 +220,6 @@ public class ImprovedOrderService {
         orderRepository.deleteById(id);
     }
     
-    /**
-     * 转换为响应DTO
-     */
     private OrderResponse convertToOrderResponse(OrderNew order) {
         OrderResponse response = new OrderResponse();
         response.setId(order.getId());
@@ -250,9 +242,6 @@ public class ImprovedOrderService {
         return response;
     }
     
-    /**
-     * 转换订单项为响应DTO
-     */
     private OrderItemResponse convertToOrderItemResponse(OrderItem item) {
         OrderItemResponse response = new OrderItemResponse();
         response.setId(item.getId());
@@ -267,19 +256,21 @@ public class ImprovedOrderService {
         return response;
     }
     
-    /**
-     * 生成取餐码
-     */
     private String generatePickupCode() {
         Random random = new Random();
         return String.format("%06d", random.nextInt(1000000));
     }
     
-    /**
-     * 生成队列号
-     */
     private Integer generateQueueNumber() {
-        // 实际实现中应该查询当前最大队列号并+1
-        return new Random().nextInt(100) + 1;
+        // 查询当前队列中的订单数量（待处理、已确认、制作中的订单）
+        List<OrderStatus> activeStatuses = Arrays.asList(
+            OrderStatus.PENDING, 
+            OrderStatus.CONFIRMED, 
+            OrderStatus.PREPARING
+        );
+        
+        // 使用repository方法获取下一个队列号
+        Integer nextQueueNumber = orderRepository.getNextQueueNumber(activeStatuses);
+        return nextQueueNumber != null ? nextQueueNumber : 1;
     }
 }

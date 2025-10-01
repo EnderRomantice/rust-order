@@ -9,6 +9,50 @@ import {
 } from 'react-native';
 import { ButtonProps } from '../types';
 
+const sizeStyles = {
+  small: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+  },
+  medium: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  large: {
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+  },
+};
+
+const variantStyles = {
+  primary: {
+    backgroundColor: '#1DA1F2',
+    borderColor: '#1DA1F2',
+  },
+  secondary: {
+    backgroundColor: 'transparent',
+    borderColor: '#1DA1F2',
+  },
+  outline: {
+    backgroundColor: 'transparent',
+    borderColor: '#E1E8ED',
+  },
+  ghost: {
+    backgroundColor: 'transparent',
+    borderColor: 'transparent',
+  },
+};
+
+const textStyles = {
+  primary: { color: '#FFFFFF' },
+  secondary: { color: '#1DA1F2' },
+  outline: { color: '#14171A' },
+  ghost: { color: '#1DA1F2' },
+};
+
 const Button: React.FC<ButtonProps> = ({
   title,
   onPress,

@@ -1,4 +1,4 @@
-const URL = ""
+const URL = "http://localhost:8080"
 
 export async function res(method: string, url: string, data: {[key: string]: any} = {}) {
     try {
